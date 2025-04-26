@@ -9,6 +9,8 @@ interface SolanaWalletButtonPropType {
     className?: string
 }
 
+
+
 const SolanaWalletButton: React.FC<SolanaWalletButtonPropType> = ({ className }) => {
 
     // if you use anchor, use the anchor hook instead
@@ -16,8 +18,8 @@ const SolanaWalletButton: React.FC<SolanaWalletButtonPropType> = ({ className })
     // const walletAddress = wallet?.publicKey.toString();
 
     return (
-        <WalletMultiButton className={`${className}`}>
-            Connect Wallet
+        <WalletMultiButton className={`${className}`} >
+            
         </WalletMultiButton>
     );
 };

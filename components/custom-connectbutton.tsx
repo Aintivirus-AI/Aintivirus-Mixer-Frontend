@@ -41,7 +41,7 @@ export const CustomConnectButton = () => {
                                         type="button"
                                         color="primary"
                                     >
-                                        Connect Wallet
+                                        Select Wallet
                                     </Button>
                                 );
                             }
