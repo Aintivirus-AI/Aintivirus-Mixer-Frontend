@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export default axios.create({
-    baseURL: "https://api.goldliondev.com/v1"
+    baseURL: "https://api.mix.ainitivirus.ai/v1"
 })
 
 // export default axios.create({
