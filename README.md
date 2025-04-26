@@ -27,7 +27,7 @@ This application allows users to deposit cryptocurrency on the Ethereum network 
 
    ```bash
    git clone https://github.com/Aintivirus-AI/Aintivirus-Mixer-Frontend.git
-   cd crypto-mixer-frontend
+   cd Aintivirus-Mixer-Frontend
    ```
 
 
