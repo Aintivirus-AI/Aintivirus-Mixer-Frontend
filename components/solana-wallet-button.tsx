@@ -16,7 +16,9 @@ const SolanaWalletButton: React.FC<SolanaWalletButtonPropType> = ({ className })
     // const walletAddress = wallet?.publicKey.toString();
 
     return (
-        <WalletMultiButton className={`${className}`} />
+        <WalletMultiButton className={`${className}`}>
+            Connect Wallet
+        </WalletMultiButton>
     );
 };
 
