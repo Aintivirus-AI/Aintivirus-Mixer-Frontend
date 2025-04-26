@@ -1,17 +1,19 @@
 "use client"
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { IconSvgProps } from "@/types";
 
 export const Logo: React.FC = () => {
-    const { theme, resolvedTheme } = useTheme();  // Use resolvedTheme
-
-    // Ensure theme is set before rendering the logo
-    const logoSrc = resolvedTheme === "dark" ? "/logolight.png" : "/logodark.png";
-
-    React.useEffect(() => {
-        console.log("Theme:", theme, "Resolved Theme:", resolvedTheme);
+    const { theme, resolvedTheme } = useTheme();  // Use resolvedTheme;
+    const [logoSrc, setLogoSrc] = useState<string>("/logolight.png");
+    
+    useEffect(() => {
+        if(resolvedTheme === 'dark') {
+            setLogoSrc("/logolight.png");
+        } else {
+            setLogoSrc("/logodark.png");
+        }
     }, [theme, resolvedTheme]);
 
     return (

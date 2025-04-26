@@ -66,7 +66,7 @@ export const Navbar = () => {
 
             <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
                 <ThemeSwitch />
-                <NavbarMenuToggle onClick={() => setIsMenuOpen(!isMenuOpen)} />
+                <NavbarMenuToggle/>
             </NavbarContent>
 
             <NavbarMenu>
