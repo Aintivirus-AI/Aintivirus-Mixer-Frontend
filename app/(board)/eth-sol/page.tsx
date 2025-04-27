@@ -1,6 +1,6 @@
 "use client"
 // ** import external libraries
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ethers } from "ethers";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Tabs, Tab } from "@heroui/tabs";
@@ -25,6 +25,7 @@ import { config as wagmiConfig } from "@/config/wagmi";
 
 // ** import util
 import { getFormattedDatetime } from "@/util";
+import { ENV } from "@/config/env";
 
 const currencies = [
     { key: "eth", label: "ETH" },
@@ -50,7 +51,7 @@ const amountsToken = [
 export default function Page() {
     const { isConnected, address } = useAccount();
     const { publicKey } = useWallet();
-
+console.log(ENV.PROJECT_DISABLE)
     const [loading, setLoading] = useState(false);
     const [selected, setSelected] = React.useState("deposit");
 
@@ -70,6 +71,7 @@ export default function Page() {
     };
 
     const handleAutoDownload = (data: string) => {
+        if(ENV.PROJECT_DISABLE) return;
         const blob = new Blob([data], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
 
@@ -80,6 +82,7 @@ export default function Page() {
     }
 
     const handleConfirmDeposit = async () => {
+        if(ENV.PROJECT_DISABLE) return;
         if (!address) {
             addToast({
                 title: "Oops!",
@@ -167,6 +170,7 @@ export default function Page() {
     }
 
     const handleConfirmWithdraw = async () => {
+        if(ENV.PROJECT_DISABLE) return;
         if (!publicKey) {
             addToast({
                 title: "Oops!",
@@ -196,9 +200,7 @@ export default function Page() {
 
         try {
             setLoading(true);
-            const res = await MixAction.withdrawSOL(note, recipientAddress)
-
-            console.log(res)
+            await MixAction.withdrawSOL(note, recipientAddress)
 
             addToast({
                 title: "Success!",
@@ -232,6 +234,7 @@ export default function Page() {
     }
 
     const handleReadNoteFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if(ENV.PROJECT_DISABLE) return;
         const file = event.target.files?.[0];
         if (!file) return;
 

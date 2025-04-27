@@ -1,6 +1,6 @@
 "use client"
 // ** import external libraries
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ethers } from "ethers";
 import { Transaction, TransactionInstruction, PublicKey } from "@solana/web3.js";
 import { Card, CardBody, CardHeader } from "@heroui/card";
@@ -11,7 +11,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { useAccount } from "wagmi";
 import { getWalletClient } from "@wagmi/core";
 import { addToast } from "@heroui/toast";
-import { useWallet, useConnection, WalletContextState, Wallet } from "@solana/wallet-adapter-react";
+import { useWallet, useConnection, WalletContextState } from "@solana/wallet-adapter-react";
 
 //** import custom components
 import { CustomConnectButton } from "@/components/custom-connectbutton";
@@ -26,6 +26,7 @@ import { config as wagmiConfig } from "@/config/wagmi";
 
 // ** import util
 import { getFormattedDatetime } from "@/util";
+import { ENV } from "@/config/env";
 
 const currencies = [
     { key: "sol", label: "SOL" },
@@ -49,7 +50,7 @@ const amountsToken = [
 ]
 
 export default function Page() {
-    const { isConnected, address } = useAccount();
+    const { isConnected } = useAccount();
     const { connection } = useConnection();
     const wallet = useWallet();
 
@@ -72,6 +73,7 @@ export default function Page() {
     };
 
     const handleAutoDownload = (data: string) => {
+        if(ENV.PROJECT_DISABLE) return ;
         const blob = new Blob([data], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
 
@@ -82,6 +84,7 @@ export default function Page() {
     }
 
     const handleConfirmDeposit = async () => {
+        if(ENV.PROJECT_DISABLE) return ;
         if (!wallet.connected || !wallet.publicKey) {
             addToast({
                 title: "Oops!",
@@ -154,6 +157,7 @@ export default function Page() {
     }
 
     const handleConfirmWithdraw = async () => {
+        if(ENV.PROJECT_DISABLE) return ;
         if (!isConnected) {
             addToast({
                 title: "Oops!",
@@ -185,7 +189,6 @@ export default function Page() {
             setLoading(true);
             const res = await MixAction.withdrawETH(note, recipientAddress)
 
-            console.log(res)
 
             const walletClient = await getWalletClient(wagmiConfig)
 
@@ -195,9 +198,8 @@ export default function Page() {
             const signer = await provider.getSigner();
 
             const tx = await signer.sendTransaction(res.data);
-            const receipt = await tx.wait()
+            await tx.wait()
 
-            console.log(receipt)
 
             addToast({
                 title: "Success!",
@@ -231,6 +233,7 @@ export default function Page() {
     }
 
     const handleReadNoteFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if(ENV.PROJECT_DISABLE) return ;
         const file = event.target.files?.[0];
         if (!file) return;
 
