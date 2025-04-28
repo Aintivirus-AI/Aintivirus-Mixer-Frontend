@@ -30,7 +30,6 @@ This application allows users to deposit cryptocurrency on the Ethereum network 
    cd Aintivirus-Mixer-Frontend
    ```
 
-
 2. Install dependencies:
 
    ```bash
@@ -39,7 +38,6 @@ This application allows users to deposit cryptocurrency on the Ethereum network 
    yarn install
    ```
 
-
 3. Start the development server:
 
    ```bash
@@ -47,7 +45,6 @@ This application allows users to deposit cryptocurrency on the Ethereum network 
    # or
    yarn dev
    ```
-
 
 4. Open your browser and navigate to `http://localhost:3000`.
 
