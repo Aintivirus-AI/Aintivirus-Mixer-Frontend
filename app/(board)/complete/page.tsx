@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Textarea } from '@heroui/input';
 import { Card, CardBody, CardHeader } from '@heroui/card';
@@ -9,7 +9,7 @@ import { addToast } from '@heroui/toast';
 
 import { getFormattedDatetime } from '@/util';
 
-export default function Page() {
+function Page() {
     const searchParams = useSearchParams();
     const note = searchParams.get('note') || '';
     const mode = searchParams.get('mode') || '';
@@ -35,8 +35,8 @@ export default function Page() {
             mode === 'eth-sol'
                 ? `ethereum_deposit_${getFormattedDatetime()}.secret.txt`
                 : mode === 'sol-eth'
-                ? `solana_deposit_${getFormattedDatetime()}.secret.txt`
-                : null;
+                    ? `solana_deposit_${getFormattedDatetime()}.secret.txt`
+                    : null;
 
         if (!filename) {
             addToast({
@@ -102,4 +102,12 @@ export default function Page() {
             </Card>
         </div>
     );
+}
+
+export default function PageWrapper() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <Page />
+        </Suspense>
+    )
 }
