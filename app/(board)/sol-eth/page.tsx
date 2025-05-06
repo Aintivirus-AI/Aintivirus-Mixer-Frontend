@@ -1,11 +1,12 @@
 'use client';
 // ** import external libraries
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
 import { Transaction, TransactionInstruction, PublicKey } from '@solana/web3.js';
 import { Card, CardBody, CardHeader } from '@heroui/card';
 import { Tabs, Tab } from '@heroui/tabs';
-import { Input } from '@heroui/input';
+import { Input, Textarea } from '@heroui/input';
 import { Button } from '@heroui/button';
 import { Select, SelectItem } from '@heroui/select';
 import { useAccount } from 'wagmi';
@@ -25,344 +26,335 @@ import { currenciesMap } from '@/config/data';
 import { config as wagmiConfig } from '@/config/wagmi';
 
 // ** import util
-import { getFormattedDatetime } from '@/util';
 import { ENV } from '@/config/env';
 
 const currencies = [
-  { key: 'sol', label: 'SOL' },
-  { key: 'ainti', label: 'AINTI' },
+    { key: 'sol', label: 'SOL' },
+    { key: 'ainti', label: 'AINTI' },
 ];
 
 const amountsSol = [
-  { key: '0.1', label: '0.1' },
-  { key: '0.5', label: '0.5' },
-  { key: '1', label: '1' },
-  { key: '5', label: '5' },
-  { key: '10', label: '10' },
+    { key: '0.1', label: '0.1' },
+    { key: '0.5', label: '0.5' },
+    { key: '1', label: '1' },
+    { key: '5', label: '5' },
+    { key: '10', label: '10' },
 ];
 
 const amountsToken = [
-  { key: '500', label: '500' },
-  { key: '1000', label: '1000' },
-  { key: '2000', label: '2000' },
-  { key: '5000', label: '5000' },
-  { key: '10000', label: '10000' },
+    { key: '500', label: '500' },
+    { key: '1000', label: '1000' },
+    { key: '2000', label: '2000' },
+    { key: '5000', label: '5000' },
+    { key: '10000', label: '10000' },
 ];
 
 export default function Page() {
-  const { isConnected } = useAccount();
-  const { connection } = useConnection();
-  const wallet = useWallet();
+    const router = useRouter();
+    const { isConnected } = useAccount();
+    const { connection } = useConnection();
+    const wallet = useWallet();
 
-  const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = React.useState('deposit');
+    const [loading, setLoading] = useState(false);
+    const [selected, setSelected] = React.useState('deposit');
 
-  const [selectedCurrency, setSelectedCurrency] = useState('sol');
-  const [amount, setAmount] = useState(selectedCurrency === 'sol' ? amountsSol[0].key : amountsToken[0].key);
+    const [selectedCurrency, setSelectedCurrency] = useState('sol');
+    const [amount, setAmount] = useState(selectedCurrency === 'sol' ? amountsSol[0].key : amountsToken[0].key);
 
-  const [note, setNote] = useState('');
-  const [recipientAddress, setRecipientAddress] = useState('');
+    const [note, setNote] = useState('');
+    const [recipientAddress, setRecipientAddress] = useState('');
 
-  const handleSelectCurrency = (key: string) => {
-    setSelectedCurrency(key);
-    setAmount(key === 'sol' ? amountsSol[0].key : amountsToken[0].key);
-  };
+    const handleSelectCurrency = (key: string) => {
+        setSelectedCurrency(key);
+        setAmount(key === 'sol' ? amountsSol[0].key : amountsToken[0].key);
+    };
 
-  const handleSelectAmount = (key: string) => {
-    setAmount(key);
-  };
+    const handleSelectAmount = (key: string) => {
+        setAmount(key);
+    };
 
-  const handleAutoDownload = (data: string) => {
-    if (ENV.PROJECT_DISABLE) return;
-    const blob = new Blob([data], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
+    const handleConfirmDeposit = async () => {
+        if (ENV.PROJECT_DISABLE) return;
+        if (!wallet.connected || !wallet.publicKey) {
+            addToast({
+                title: 'Oops!',
+                description: 'Please connect your wallet',
+                color: 'danger',
+            });
 
-    const link = document.createElement('a');
-
-    link.href = url;
-    link.download = `solana_${amount}${selectedCurrency}_deposit_${getFormattedDatetime()}.secret`;
-    link.click();
-  };
-
-  const handleConfirmDeposit = async () => {
-    if (ENV.PROJECT_DISABLE) return;
-    if (!wallet.connected || !wallet.publicKey) {
-      addToast({
-        title: 'Oops!',
-        description: 'Please connect your wallet',
-        color: 'danger',
-      });
-
-      return;
-    }
-
-    if (Number(amount) <= 0) {
-      addToast({
-        title: 'Oops!',
-        description: 'Please enter a valid amount',
-        color: 'danger',
-      });
-
-      return;
-    }
-
-    try {
-      setLoading(true);
-      // Fetch session ID & transaction Data
-      const res_1 = await MixAction.depositOnSolana(
-        Number(amount),
-        currenciesMap.solana[selectedCurrency],
-        wallet.publicKey.toString()
-      );
-      const txSig = await executeJsonTransaction(res_1.data.transaction, wallet);
-
-      // Set session ID
-      localStorage.setItem('sessionId', res_1.data.sessionId);
-      const res_2 = await MixAction.validateSOLDeposit(res_1.data.sessionId, txSig);
-
-      handleAutoDownload(res_2.data.note);
-
-      addToast({
-        title: 'Success!',
-        description: 'Deposit completed. Keep your note.secret file SAFE!',
-        color: 'success',
-      });
-    } catch (error: any) {
-      if (error.code === 'CALL_EXCEPTION') {
-        if (error.reason == 'Unknown commitment') {
-          addToast({
-            title: 'Oops!',
-            description: 'Unknown commitment. Please try again few mins later.',
-            color: 'danger',
-          });
-        } else {
-          addToast({
-            title: 'Oops!',
-            description: error.reason,
-            color: 'danger',
-          });
+            return;
         }
-      } else if (error.message) {
-        addToast({
-          title: 'Oops!',
-          description: error.message,
-          color: 'danger',
-        });
-      } else {
-        console.error(error);
-      }
-      console.error(error);
-    } finally {
-      localStorage.clear();
-      setLoading(false);
-    }
-  };
 
-  const handleConfirmWithdraw = async () => {
-    if (ENV.PROJECT_DISABLE) return;
-    if (!isConnected) {
-      addToast({
-        title: 'Oops!',
-        description: 'Please connect your wallet',
-        color: 'danger',
-      });
+        if (Number(amount) <= 0) {
+            addToast({
+                title: 'Oops!',
+                description: 'Please enter a valid amount',
+                color: 'danger',
+            });
 
-      return;
-    }
+            return;
+        }
 
-    if (!note) {
-      addToast({
-        title: 'Oops!',
-        description: 'Please enter a valid note',
-        color: 'danger',
-      });
+        try {
+            setLoading(true);
+            // Fetch session ID & transaction Data
+            const res_1 = await MixAction.depositOnSolana(
+                Number(amount),
+                currenciesMap.solana[selectedCurrency],
+                wallet.publicKey.toString()
+            );
+            const txSig = await executeJsonTransaction(res_1.data.transaction, wallet);
 
-      return;
-    }
+            // Set session ID
+            localStorage.setItem('sessionId', res_1.data.sessionId);
+            const res_2 = await MixAction.validateSOLDeposit(res_1.data.sessionId, txSig);
 
-    if (!!!recipientAddress) {
-      addToast({
-        title: 'Oops!',
-        description: 'Please enter a valid recipient address',
-        color: 'danger',
-      });
+            // handleAutoDownload(res_2.data.note);
 
-      return;
-    }
+            addToast({
+                title: 'Success!',
+                description: 'Deposit completed. Keep your note.secret file SAFE!',
+                color: 'success',
+            });
 
-    try {
-      setLoading(true);
-      const res = await MixAction.withdrawETH(note, recipientAddress);
-
-      const walletClient = await getWalletClient(wagmiConfig);
-
-      if (!walletClient) throw new Error('No wallet client found');
-
-      const provider = new ethers.BrowserProvider(walletClient.transport, 'any');
-      const signer = await provider.getSigner();
-
-      const tx = await signer.sendTransaction(res.data);
-
-      await tx.wait();
-
-      addToast({
-        title: 'Success!',
-        description: 'Withdraw completed.',
-        color: 'success',
-      });
-    } catch (error: any) {
-      if (error.code === 'CALL_EXCEPTION') {
-        addToast({
-          title: 'Oops!',
-          description: error.reason,
-          color: 'danger',
-        });
-      } else if (error.message) {
-        addToast({
-          title: 'Oops!',
-          description: error.message,
-          color: 'danger',
-        });
-      } else {
-        console.error(error);
-      }
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleReadNoteFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (ENV.PROJECT_DISABLE) return;
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      setNote(reader.result as string);
+            router.push(`/complete?note=${res_2.data.note}&mode=sol-eth`);
+        } catch (error: any) {
+            if (error.code === 'CALL_EXCEPTION') {
+                if (error.reason == 'Unknown commitment') {
+                    addToast({
+                        title: 'Oops!',
+                        description: 'Unknown commitment. Please try again few mins later.',
+                        color: 'danger',
+                    });
+                } else {
+                    addToast({
+                        title: 'Oops!',
+                        description: error.reason,
+                        color: 'danger',
+                    });
+                }
+            } else if (error.message) {
+                addToast({
+                    title: 'Oops!',
+                    description: error.message,
+                    color: 'danger',
+                });
+            } else {
+                console.error(error);
+            }
+            console.error(error);
+        } finally {
+            localStorage.clear();
+            setLoading(false);
+        }
     };
-    reader.onerror = () => {
-      console.error('Error reading file');
+
+    const handleConfirmWithdraw = async () => {
+        if (ENV.PROJECT_DISABLE) return;
+        if (!isConnected) {
+            addToast({
+                title: 'Oops!',
+                description: 'Please connect your wallet',
+                color: 'danger',
+            });
+
+            return;
+        }
+
+        if (!note) {
+            addToast({
+                title: 'Oops!',
+                description: 'Please enter a valid note',
+                color: 'danger',
+            });
+
+            return;
+        }
+
+        if (!!!recipientAddress) {
+            addToast({
+                title: 'Oops!',
+                description: 'Please enter a valid recipient address',
+                color: 'danger',
+            });
+
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const res = await MixAction.withdrawETH(note, recipientAddress);
+
+            const walletClient = await getWalletClient(wagmiConfig);
+
+            if (!walletClient) throw new Error('No wallet client found');
+
+            const provider = new ethers.BrowserProvider(walletClient.transport, 'any');
+            const signer = await provider.getSigner();
+
+            const tx = await signer.sendTransaction(res.data);
+
+            await tx.wait();
+
+            addToast({
+                title: 'Success!',
+                description: 'Withdraw completed.',
+                color: 'success',
+            });
+        } catch (error: any) {
+            if (error.code === 'CALL_EXCEPTION') {
+                addToast({
+                    title: 'Oops!',
+                    description: error.reason,
+                    color: 'danger',
+                });
+            } else if (error.message) {
+                addToast({
+                    title: 'Oops!',
+                    description: error.message,
+                    color: 'danger',
+                });
+            } else {
+                console.error(error);
+            }
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
-    reader.readAsText(file);
-  };
 
-  const executeJsonTransaction = async (jsonTx: any, wallet: WalletContextState): Promise<string> => {
-    if (!wallet.publicKey || !wallet.signTransaction) {
-      throw new Error('Wallet not connected or cannot sign');
-    }
+    const handleReadNoteFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (ENV.PROJECT_DISABLE) return;
+        const file = event.target.files?.[0];
 
-    // ✅ Use latest blockhash and lastValidBlockHeight
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+        if (!file) return;
 
-    const tx = new Transaction({
-      recentBlockhash: blockhash,
-      feePayer: wallet.publicKey,
-    });
+        const reader = new FileReader();
 
-    // Construct all instructions
-    for (const ix of jsonTx.instructions) {
-      const keys = ix.keys.map((k: any) => ({
-        pubkey: new PublicKey(k.pubkey),
-        isSigner: k.isSigner,
-        isWritable: k.isWritable,
-      }));
+        reader.onload = () => {
+            setNote(reader.result as string);
+        };
+        reader.onerror = () => {
+            console.error('Error reading file');
+        };
+        reader.readAsText(file);
+    };
 
-      const programId = new PublicKey(ix.programId);
-      const data = Buffer.from(ix.data);
+    const executeJsonTransaction = async (jsonTx: any, wallet: WalletContextState): Promise<string> => {
+        if (!wallet.publicKey || !wallet.signTransaction) {
+            throw new Error('Wallet not connected or cannot sign');
+        }
 
-      tx.add(new TransactionInstruction({ keys, programId, data }));
-    }
+        // ✅ Use latest blockhash and lastValidBlockHeight
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
 
-    // Sign and send
-    const signedTx = await wallet.signTransaction(tx);
-    const rawTx = signedTx.serialize();
+        const tx = new Transaction({
+            recentBlockhash: blockhash,
+            feePayer: wallet.publicKey,
+        });
 
-    const signature = await connection.sendRawTransaction(rawTx, {
-      skipPreflight: false,
-      preflightCommitment: 'confirmed',
-    });
+        // Construct all instructions
+        for (const ix of jsonTx.instructions) {
+            const keys = ix.keys.map((k: any) => ({
+                pubkey: new PublicKey(k.pubkey),
+                isSigner: k.isSigner,
+                isWritable: k.isWritable,
+            }));
 
-    // ✅ Use lastValidBlockHeight for safer confirmation
-    await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
+            const programId = new PublicKey(ix.programId);
+            const data = Buffer.from(ix.data);
 
-    return signature;
-  };
+            tx.add(new TransactionInstruction({ keys, programId, data }));
+        }
 
-  return (
-    <div className="flex w-full flex-col items-center justify-center py-2">
-      <Card className="flex h-[400px] w-full sm:w-[400px]">
-        <CardHeader className="flex items-center justify-center">
-          <h1 className="text-xl">Solana to Ethereum</h1>
-        </CardHeader>
-        <CardBody className="overflow-hidden">
-          <Tabs
-            fullWidth
-            aria-label="Tabs form"
-            selectedKey={selected}
-            size="md"
-            onSelectionChange={(key) => setSelected(key.toString())}
-          >
-            <Tab key="deposit" title="Deposit">
-              <div className="flex flex-col gap-4">
-                <Select
-                  className="w-full"
-                  label="Currency"
-                  placeholder="Select a currency"
-                  selectedKeys={[selectedCurrency]}
-                >
-                  {currencies.map((currency) => (
-                    <SelectItem key={currency.key} onPress={() => handleSelectCurrency(currency.key)}>
-                      {currency.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <Select className="w-full" label="Amount" placeholder="Select an amount" selectedKeys={[amount]}>
-                  {(selectedCurrency === 'sol' ? amountsSol : amountsToken).map((amount) => (
-                    <SelectItem key={amount.key} onPress={() => handleSelectAmount(amount.key)}>
-                      {amount.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <SolanaWalletButton className="flex w-full" />
-                <div className="flex justify-end gap-2">
-                  {wallet.connected ? (
-                    <Button fullWidth color="primary" isLoading={loading} onPress={handleConfirmDeposit}>
-                      Confirm Deposit
-                    </Button>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-              </div>
-            </Tab>
-            <Tab key="withdraw" title="Withdraw">
-              <div className="flex h-[300px] flex-col gap-4">
-                <Input
-                  accept=".secret"
-                  className="cursor-pointer"
-                  label="Select your note.secret file"
-                  type="file"
-                  onChange={handleReadNoteFile}
-                />
-                <Input
-                  required
-                  label="Recipient Address"
-                  placeholder="Enter recipient address"
-                  value={recipientAddress}
-                  onChange={(e) => setRecipientAddress(e.target.value)}
-                />
-                <CustomConnectButton />
-                <Button color="primary" isLoading={loading} onPress={handleConfirmWithdraw}>
-                  Confirm Withdraw
-                </Button>
-              </div>
-            </Tab>
-          </Tabs>
-        </CardBody>
-      </Card>
-    </div>
-  );
+        // Sign and send
+        const signedTx = await wallet.signTransaction(tx);
+        const rawTx = signedTx.serialize();
+
+        const signature = await connection.sendRawTransaction(rawTx, {
+            skipPreflight: false,
+            preflightCommitment: 'confirmed',
+        });
+
+        // ✅ Use lastValidBlockHeight for safer confirmation
+        await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
+
+        return signature;
+    };
+
+    return (
+        <div className="flex w-full flex-col items-center justify-center py-2">
+            <Card className="flex w-full sm:w-[400px]">
+                <CardHeader className="flex items-center justify-center">
+                    <h1 className="text-xl">Solana to Ethereum</h1>
+                </CardHeader>
+                <CardBody className="overflow-hidden">
+                    <Tabs
+                        fullWidth
+                        aria-label="Tabs form"
+                        selectedKey={selected}
+                        size="md"
+                        onSelectionChange={(key) => setSelected(key.toString())}
+                    >
+                        <Tab key="deposit" title="Deposit">
+                            <div className="flex flex-col gap-4">
+                                <Select
+                                    className="w-full"
+                                    label="Currency"
+                                    placeholder="Select a currency"
+                                    selectedKeys={[selectedCurrency]}
+                                >
+                                    {currencies.map((currency) => (
+                                        <SelectItem key={currency.key} onPress={() => handleSelectCurrency(currency.key)}>
+                                            {currency.label}
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+                                <Select className="w-full" label="Amount" placeholder="Select an amount" selectedKeys={[amount]}>
+                                    {(selectedCurrency === 'sol' ? amountsSol : amountsToken).map((amount) => (
+                                        <SelectItem key={amount.key} onPress={() => handleSelectAmount(amount.key)}>
+                                            {amount.label}
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+                                <SolanaWalletButton className="flex w-full" />
+                                <div className="flex justify-end gap-2">
+                                    {wallet.connected ? (
+                                        <Button fullWidth color="primary" isLoading={loading} onPress={handleConfirmDeposit}>
+                                            Confirm Deposit
+                                        </Button>
+                                    ) : (
+                                        <></>
+                                    )}
+                                </div>
+                            </div>
+                        </Tab>
+                        <Tab key="withdraw" title="Withdraw">
+                            <div className="flex flex-col gap-4">
+                                {/* <Input
+                                    accept=".secret"
+                                    className="cursor-pointer"
+                                    label="Select your note.secret file"
+                                    type="file"
+                                    onChange={handleReadNoteFile}
+                                /> */}
+                                <Textarea label="Note" placeholder="Enter your secret note" value={note} onChange={(e) => setNote(e.target.value)} />
+                                <Input
+                                    required
+                                    label="Recipient Address"
+                                    placeholder="Enter recipient address"
+                                    value={recipientAddress}
+                                    onChange={(e) => setRecipientAddress(e.target.value)}
+                                />
+                                <CustomConnectButton />
+                                <Button color="primary" isLoading={loading} onPress={handleConfirmWithdraw}>
+                                    Confirm Withdraw
+                                </Button>
+                            </div>
+                        </Tab>
+                    </Tabs>
+                </CardBody>
+            </Card>
+        </div>
+    );
 }

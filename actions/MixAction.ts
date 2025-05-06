@@ -8,7 +8,7 @@ export default class MixAction {
     amount: string,
     currency: string,
     sender: string
-  ): Promise<{ data: { sessionId: string; expiresAt: number; transactions: Array<TransactionRequest> } }> {
+  ): Promise<{ data: { sessionId: string; expiresAt: number; transactions: string } }> {
     try {
       const response = await axios.post('/deposit-eth', {
         amount,
