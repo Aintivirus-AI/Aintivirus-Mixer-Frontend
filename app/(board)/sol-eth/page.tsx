@@ -184,17 +184,18 @@ export default function Page() {
         try {
             setLoading(true);
             const res = await MixAction.withdrawETH(note, recipientAddress);
+            console.log(res.data.txSig)
+            
+            // const walletClient = await getWalletClient(wagmiConfig);
 
-            const walletClient = await getWalletClient(wagmiConfig);
+            // if (!walletClient) throw new Error('No wallet client found');
 
-            if (!walletClient) throw new Error('No wallet client found');
+            // const provider = new ethers.BrowserProvider(walletClient.transport, 'any');
+            // const signer = await provider.getSigner();
 
-            const provider = new ethers.BrowserProvider(walletClient.transport, 'any');
-            const signer = await provider.getSigner();
+            // const tx = await signer.sendTransaction(res.data);
 
-            const tx = await signer.sendTransaction(res.data);
-
-            await tx.wait();
+            // await tx.wait();
 
             addToast({
                 title: 'Success!',
@@ -288,7 +289,7 @@ export default function Page() {
                 <CardHeader className="flex items-center justify-center">
                     <h1 className="text-xl">Solana to Ethereum</h1>
                 </CardHeader>
-                <CardBody className="overflow-hidden">
+                <CardBody className="h-full">
                     <Tabs
                         fullWidth
                         aria-label="Tabs form"

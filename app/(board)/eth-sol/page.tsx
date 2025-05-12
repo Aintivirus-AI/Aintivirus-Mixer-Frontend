@@ -244,7 +244,7 @@ export default function Page() {
                 <CardHeader className="flex items-center justify-center">
                     <h1 className="text-xl">Ethereum to Solana</h1>
                 </CardHeader>
-                <CardBody className="overflow-hidden">
+                <CardBody className="h-full">
                     <Tabs
                         fullWidth
                         aria-label="Tabs form"

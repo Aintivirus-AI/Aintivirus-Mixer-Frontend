@@ -66,7 +66,7 @@ export default class MixAction {
     }
   }
 
-  static async withdrawSOL(note: string, receiver: string) {
+  static async withdrawSOL(note: string, receiver: string): Promise<{ data: { txSig: string } }> {
     try {
       const response = await axios.post('/withdraw-sol', {
         note,
@@ -79,7 +79,7 @@ export default class MixAction {
     }
   }
 
-  static async withdrawETH(note: string, receiver: string) {
+  static async withdrawETH(note: string, receiver: string): Promise<{ data: { txSig: string } }> {
     try {
       const response = await axios.post('/withdraw-eth', {
         note,
