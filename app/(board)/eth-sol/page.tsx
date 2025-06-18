@@ -95,7 +95,11 @@ export default function Page() {
         try {
             setLoading(true);
             // Fetch session ID & transaction Data
-            const res_1 = await MixAction.depositOnEthereum(amount, currenciesMap.ethereum[selectedCurrency], address);
+            const res_1 = await MixAction.depositOnEthereum(
+                Number(amount), 
+                selectedCurrency === 'eth' ? 3 : 4, 
+                address
+            );
             const walletClient = await getWalletClient(wagmiConfig);
 
             if (!walletClient) throw new Error('No wallet client found');

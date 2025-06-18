@@ -34,7 +34,6 @@ const currencies = [
 ];
 
 const amountsSol = [
-    { key: '0.1', label: '0.1' },
     { key: '0.5', label: '0.5' },
     { key: '1', label: '1' },
     { key: '5', label: '5' },
@@ -100,7 +99,7 @@ export default function Page() {
             // Fetch session ID & transaction Data
             const res_1 = await MixAction.depositOnSolana(
                 Number(amount),
-                currenciesMap.solana[selectedCurrency],
+                selectedCurrency === 'sol' ? 3 : 4,
                 wallet.publicKey.toString()
             );
             const txSig = await executeJsonTransaction(res_1.data.transaction, wallet);

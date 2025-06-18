@@ -49,8 +49,8 @@ export function Providers({ children, themeProps }: ProvidersProps) {
     const solanaMainnet = WalletAdapterNetwork.Mainnet;
     const solanaDevnet = WalletAdapterNetwork.Devnet;
 
-    const endpoint = React.useMemo(() => ENV.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(solanaMainnet), [solanaMainnet]);
-    // const endpoint = React.useMemo(() => clusterApiUrl(solanaDevnet), [solanaDevnet])
+    // const endpoint = React.useMemo(() => ENV.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(solanaMainnet), [solanaMainnet]);
+    const endpoint = React.useMemo(() => clusterApiUrl(solanaDevnet), [solanaDevnet])
 
     // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking --
     // Only the wallets you configure here will be compiled into your application

@@ -5,14 +5,14 @@ import axios from '@/lib/axios';
 
 export default class MixAction {
   static async depositOnEthereum(
-    amount: string,
-    currency: string,
+    amount: number,
+    mode: number,
     sender: string
   ): Promise<{ data: { sessionId: string; expiresAt: number; transactions: string } }> {
     try {
       const response = await axios.post('/deposit-eth', {
         amount,
-        currency,
+        mode,
         sender,
       });
 
@@ -24,13 +24,13 @@ export default class MixAction {
 
   static async depositOnSolana(
     amount: number,
-    currency: string,
+    mode: number,
     sender: string
   ): Promise<{ data: { sessionId: string; expiresAt: number; transaction: Array<Transaction> } }> {
     try {
       const response = await axios.post('/deposit-sol', {
         amount,
-        currency,
+        mode,
         sender,
       });
 
