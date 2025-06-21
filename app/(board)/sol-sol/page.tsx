@@ -306,7 +306,7 @@ export default function Page() {
         <div className="flex w-full flex-col items-center justify-center py-2">
             <Card className="flex w-full sm:w-[400px]">
                 <CardHeader className="flex items-center justify-center">
-                    <h1 className="text-xl">Solana to Ethereum</h1>
+                    <h1 className="text-xl">Solana to Solana</h1>
                 </CardHeader>
                 <CardBody className="h-full">
                     <Tabs
