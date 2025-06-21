@@ -11,16 +11,12 @@ import { Select, SelectItem } from '@heroui/select';
 import { useAccount } from 'wagmi';
 import { getWalletClient } from '@wagmi/core';
 import { addToast } from '@heroui/toast';
-import { useWallet } from '@solana/wallet-adapter-react';
 
 //** import custom components
 import { CustomConnectButton } from '@/components/custom-connectbutton';
-import SolanaWalletButton from '@/components/solana-wallet-button';
 
 // ** import api action
 import MixAction from '@/actions/MixAction';
-
-// ** import local constants
 import { config as wagmiConfig } from '@/config/wagmi';
 
 // ** import util
@@ -50,7 +46,6 @@ const amountsToken = [
 export default function Page() {
     const router = useRouter();
     const { isConnected, address } = useAccount();
-    const { publicKey } = useWallet();
     const [loading, setLoading] = useState(false);
     const [selected, setSelected] = React.useState('deposit');
 
@@ -95,11 +90,12 @@ export default function Page() {
             setLoading(true);
             // Fetch session ID & transaction Data
             const res_1 = await MixAction.depositOnEthereum(
-                Number(amount),
-                selectedCurrency === 'eth' ? 3 : 4,
+                Number(amount), 
+                selectedCurrency === 'eth' ? 1 : 2, 
                 address
             );
-            if (!res_1.success) {
+
+            if(!res_1.success) {
                 addToast({
                     title: 'Oops',
                     description: res_1.message,
@@ -108,6 +104,7 @@ export default function Page() {
 
                 return
             }
+
             const walletClient = await getWalletClient(wagmiConfig);
 
             if (!walletClient) throw new Error('No wallet client found');
@@ -129,15 +126,16 @@ export default function Page() {
             localStorage.setItem('sessionId', res_1.data.sessionId);
 
             const res_2 = await MixAction.validateETHDeposit(res_1.data.sessionId, txHash);
-            if (!res_2.success) {
+            if(!res_2.success) {
                 addToast({
                     title: 'Oops',
-                    description: res_2.message,
+                    description: res_1.message,
                     color: 'danger'
                 })
 
                 return
             }
+
             // handleAutoDownload(res_2.data.note);
 
             addToast({
@@ -180,7 +178,7 @@ export default function Page() {
 
     const handleConfirmWithdraw = async () => {
         if (ENV.PROJECT_DISABLE) return;
-        if (!publicKey) {
+        if (!isConnected) {
             addToast({
                 title: 'Oops!',
                 description: 'Please connect your wallet',
@@ -212,8 +210,9 @@ export default function Page() {
 
         try {
             setLoading(true);
-            const res = await MixAction.withdrawSOL(note, recipientAddress);
-            if (!res.success) {
+            
+            const res = await MixAction.withdrawETH(note, recipientAddress);
+            if(!res.success) {
                 addToast({
                     title: 'Oops',
                     description: res.message,
@@ -271,7 +270,7 @@ export default function Page() {
         <div className="flex w-full flex-col items-center justify-center py-2">
             <Card className="flex w-full sm:w-[400px]">
                 <CardHeader className="flex items-center justify-center">
-                    <h1 className="text-xl">Ethereum to Solana</h1>
+                    <h1 className="text-xl">Ethereum to Ethereum</h1>
                 </CardHeader>
                 <CardBody className="h-full">
                     <Tabs
@@ -340,7 +339,7 @@ export default function Page() {
                                     value={recipientAddress}
                                     onChange={(e) => setRecipientAddress(e.target.value)}
                                 />
-                                <SolanaWalletButton className="flex w-full" />
+                                <CustomConnectButton />
                                 <Button color="primary" isLoading={loading} onPress={handleConfirmWithdraw}>
                                     Confirm Withdraw
                                 </Button>

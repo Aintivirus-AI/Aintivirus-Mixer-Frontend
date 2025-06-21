@@ -2,41 +2,35 @@
 // ** import external libraries
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ethers } from 'ethers';
+import { Transaction, TransactionInstruction, PublicKey } from '@solana/web3.js';
 import { Card, CardBody, CardHeader } from '@heroui/card';
 import { Tabs, Tab } from '@heroui/tabs';
 import { Input, Textarea } from '@heroui/input';
 import { Button } from '@heroui/button';
 import { Select, SelectItem } from '@heroui/select';
 import { useAccount } from 'wagmi';
-import { getWalletClient } from '@wagmi/core';
 import { addToast } from '@heroui/toast';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useWallet, useConnection, WalletContextState } from '@solana/wallet-adapter-react';
 
 //** import custom components
-import { CustomConnectButton } from '@/components/custom-connectbutton';
 import SolanaWalletButton from '@/components/solana-wallet-button';
 
 // ** import api action
 import MixAction from '@/actions/MixAction';
 
-// ** import local constants
-import { config as wagmiConfig } from '@/config/wagmi';
-
 // ** import util
 import { ENV } from '@/config/env';
 
 const currencies = [
-    { key: 'eth', label: 'ETH' },
+    { key: 'sol', label: 'SOL' },
     { key: 'ainti', label: 'AINTI' },
 ];
 
-const amountsEth = [
-    { key: '0.01', label: '0.01' },
-    { key: '0.05', label: '0.05' },
-    { key: '0.1', label: '0.1' },
+const amountsSol = [
     { key: '0.5', label: '0.5' },
     { key: '1', label: '1' },
+    { key: '5', label: '5' },
+    { key: '10', label: '10' },
 ];
 
 const amountsToken = [
@@ -49,20 +43,22 @@ const amountsToken = [
 
 export default function Page() {
     const router = useRouter();
-    const { isConnected, address } = useAccount();
-    const { publicKey } = useWallet();
+    const { isConnected } = useAccount();
+    const { connection } = useConnection();
+    const wallet = useWallet();
+
     const [loading, setLoading] = useState(false);
     const [selected, setSelected] = React.useState('deposit');
 
-    const [selectedCurrency, setSelectedCurrency] = useState('eth');
-    const [amount, setAmount] = useState(selectedCurrency === 'eth' ? amountsEth[0].key : amountsToken[0].key);
+    const [selectedCurrency, setSelectedCurrency] = useState('sol');
+    const [amount, setAmount] = useState(selectedCurrency === 'sol' ? amountsSol[0].key : amountsToken[0].key);
 
     const [note, setNote] = useState('');
     const [recipientAddress, setRecipientAddress] = useState('');
 
     const handleSelectCurrency = (key: string) => {
         setSelectedCurrency(key);
-        setAmount(key === 'eth' ? amountsEth[0].key : amountsToken[0].key);
+        setAmount(key === 'sol' ? amountsSol[0].key : amountsToken[0].key);
     };
 
     const handleSelectAmount = (key: string) => {
@@ -71,7 +67,7 @@ export default function Page() {
 
     const handleConfirmDeposit = async () => {
         if (ENV.PROJECT_DISABLE) return;
-        if (!address) {
+        if (!wallet.connected || !wallet.publicKey) {
             addToast({
                 title: 'Oops!',
                 description: 'Please connect your wallet',
@@ -94,10 +90,10 @@ export default function Page() {
         try {
             setLoading(true);
             // Fetch session ID & transaction Data
-            const res_1 = await MixAction.depositOnEthereum(
+            const res_1 = await MixAction.depositOnSolana(
                 Number(amount),
-                selectedCurrency === 'eth' ? 3 : 4,
-                address
+                selectedCurrency === 'sol' ? 1 : 2,
+                wallet.publicKey.toString()
             );
             if (!res_1.success) {
                 addToast({
@@ -108,27 +104,12 @@ export default function Page() {
 
                 return
             }
-            const walletClient = await getWalletClient(wagmiConfig);
 
-            if (!walletClient) throw new Error('No wallet client found');
-
-            const provider = new ethers.BrowserProvider(walletClient.transport, 'any');
-            const signer = await provider.getSigner();
-
-            // Sign & send transactions
-            let txHash = '';
-
-            for (const txData of JSON.parse(res_1.data.transactions)) {
-                const tx = await signer.sendTransaction(txData);
-                const receipt = await tx.wait();
-
-                txHash = receipt?.hash || '';
-            }
+            const txSig = await executeJsonTransaction(res_1.data.transaction, wallet);
 
             // Set session ID
             localStorage.setItem('sessionId', res_1.data.sessionId);
-
-            const res_2 = await MixAction.validateETHDeposit(res_1.data.sessionId, txHash);
+            const res_2 = await MixAction.validateSOLDeposit(res_1.data.sessionId, txSig);
             if (!res_2.success) {
                 addToast({
                     title: 'Oops',
@@ -138,6 +119,7 @@ export default function Page() {
 
                 return
             }
+
             // handleAutoDownload(res_2.data.note);
 
             addToast({
@@ -146,7 +128,7 @@ export default function Page() {
                 color: 'success',
             });
 
-            router.push(`/complete?note=${res_2.data.note}&mode=eth-sol`);
+            router.push(`/complete?note=${res_2.data.note}&mode=sol-eth`);
         } catch (error: any) {
             if (error.code === 'CALL_EXCEPTION') {
                 if (error.reason == 'Unknown commitment') {
@@ -180,7 +162,7 @@ export default function Page() {
 
     const handleConfirmWithdraw = async () => {
         if (ENV.PROJECT_DISABLE) return;
-        if (!publicKey) {
+        if (!wallet.connected) {
             addToast({
                 title: 'Oops!',
                 description: 'Please connect your wallet',
@@ -222,6 +204,17 @@ export default function Page() {
 
                 return
             }
+
+            // const walletClient = await getWalletClient(wagmiConfig);
+
+            // if (!walletClient) throw new Error('No wallet client found');
+
+            // const provider = new ethers.BrowserProvider(walletClient.transport, 'any');
+            // const signer = await provider.getSigner();
+
+            // const tx = await signer.sendTransaction(res.data);
+
+            // await tx.wait();
 
             addToast({
                 title: 'Success!',
@@ -267,11 +260,53 @@ export default function Page() {
         reader.readAsText(file);
     };
 
+    const executeJsonTransaction = async (jsonTx: any, wallet: WalletContextState): Promise<string> => {
+        if (!wallet.publicKey || !wallet.signTransaction) {
+            throw new Error('Wallet not connected or cannot sign');
+        }
+
+        // ✅ Use latest blockhash and lastValidBlockHeight
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+
+        const tx = new Transaction({
+            recentBlockhash: blockhash,
+            feePayer: wallet.publicKey,
+        });
+
+        // Construct all instructions
+        for (const ix of jsonTx.instructions) {
+            const keys = ix.keys.map((k: any) => ({
+                pubkey: new PublicKey(k.pubkey),
+                isSigner: k.isSigner,
+                isWritable: k.isWritable,
+            }));
+
+            const programId = new PublicKey(ix.programId);
+            const data = Buffer.from(ix.data);
+
+            tx.add(new TransactionInstruction({ keys, programId, data }));
+        }
+
+        // Sign and send
+        const signedTx = await wallet.signTransaction(tx);
+        const rawTx = signedTx.serialize();
+
+        const signature = await connection.sendRawTransaction(rawTx, {
+            skipPreflight: false,
+            preflightCommitment: 'confirmed',
+        });
+
+        // ✅ Use lastValidBlockHeight for safer confirmation
+        await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
+
+        return signature;
+    };
+
     return (
         <div className="flex w-full flex-col items-center justify-center py-2">
             <Card className="flex w-full sm:w-[400px]">
                 <CardHeader className="flex items-center justify-center">
-                    <h1 className="text-xl">Ethereum to Solana</h1>
+                    <h1 className="text-xl">Solana to Ethereum</h1>
                 </CardHeader>
                 <CardBody className="h-full">
                     <Tabs
@@ -296,24 +331,15 @@ export default function Page() {
                                     ))}
                                 </Select>
                                 <Select className="w-full" label="Amount" placeholder="Select an amount" selectedKeys={[amount]}>
-                                    {(selectedCurrency === 'eth' ? amountsEth : amountsToken).map((amount) => (
+                                    {(selectedCurrency === 'sol' ? amountsSol : amountsToken).map((amount) => (
                                         <SelectItem key={amount.key} onPress={() => handleSelectAmount(amount.key)}>
                                             {amount.label}
                                         </SelectItem>
                                     ))}
                                 </Select>
-                                {/* <Input
-                                    label="Amount"
-                                    placeholder="Enter amount"
-                                    step={0.0001}
-                                    value={amount.toString()}
-                                    type="number"
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    min={0}
-                                /> */}
-                                <CustomConnectButton />
+                                <SolanaWalletButton className="flex w-full" />
                                 <div className="flex justify-end gap-2">
-                                    {isConnected ? (
+                                    {wallet.connected ? (
                                         <Button fullWidth color="primary" isLoading={loading} onPress={handleConfirmDeposit}>
                                             Confirm Deposit
                                         </Button>
@@ -332,7 +358,7 @@ export default function Page() {
                                     type="file"
                                     onChange={handleReadNoteFile}
                                 /> */}
-                                <Textarea label="Note" height={200} placeholder="Enter your secret note" value={note} onChange={(e) => setNote(e.target.value)} />
+                                <Textarea label="Note" placeholder="Enter your secret note" value={note} onChange={(e) => setNote(e.target.value)} />
                                 <Input
                                     required
                                     label="Recipient Address"

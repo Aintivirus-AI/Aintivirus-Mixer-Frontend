@@ -10,7 +10,6 @@ import { Input, Textarea } from '@heroui/input';
 import { Button } from '@heroui/button';
 import { Select, SelectItem } from '@heroui/select';
 import { useAccount } from 'wagmi';
-import { getWalletClient } from '@wagmi/core';
 import { addToast } from '@heroui/toast';
 import { useWallet, useConnection, WalletContextState } from '@solana/wallet-adapter-react';
 
@@ -20,10 +19,6 @@ import SolanaWalletButton from '@/components/solana-wallet-button';
 
 // ** import api action
 import MixAction from '@/actions/MixAction';
-
-// ** import local constants
-import { currenciesMap } from '@/config/data';
-import { config as wagmiConfig } from '@/config/wagmi';
 
 // ** import util
 import { ENV } from '@/config/env';
@@ -102,11 +97,30 @@ export default function Page() {
                 selectedCurrency === 'sol' ? 3 : 4,
                 wallet.publicKey.toString()
             );
+            if (!res_1.success) {
+                addToast({
+                    title: 'Oops',
+                    description: res_1.message,
+                    color: 'danger'
+                })
+
+                return
+            }
+
             const txSig = await executeJsonTransaction(res_1.data.transaction, wallet);
 
             // Set session ID
             localStorage.setItem('sessionId', res_1.data.sessionId);
             const res_2 = await MixAction.validateSOLDeposit(res_1.data.sessionId, txSig);
+            if (!res_2.success) {
+                addToast({
+                    title: 'Oops',
+                    description: res_2.message,
+                    color: 'danger'
+                })
+
+                return
+            }
 
             // handleAutoDownload(res_2.data.note);
 
@@ -183,8 +197,16 @@ export default function Page() {
         try {
             setLoading(true);
             const res = await MixAction.withdrawETH(note, recipientAddress);
-            console.log(res.data.txSig)
-            
+            if (!res.success) {
+                addToast({
+                    title: 'Oops',
+                    description: res.message,
+                    color: 'danger'
+                })
+
+                return
+            }
+
             // const walletClient = await getWalletClient(wagmiConfig);
 
             // if (!walletClient) throw new Error('No wallet client found');
