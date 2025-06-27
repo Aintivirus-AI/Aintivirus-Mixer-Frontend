@@ -125,6 +125,12 @@ export default function Page() {
                 txHash = receipt?.hash || '';
             }
 
+            addToast({
+                title: 'Caution!',
+                description: 'Do not refresh page until secret note shows, for instance SOL deposit for bridge to ETH is very slow.',
+                color: 'warning',
+            });
+
             // Set session ID
             localStorage.setItem('sessionId', res_1.data.sessionId);
 

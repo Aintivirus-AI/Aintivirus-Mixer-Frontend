@@ -33,9 +33,9 @@ function Page() {
     const handleDownload = () => {
         const filename =
             mode === 'eth-sol'
-                ? `ethereum_deposit_${getFormattedDatetime()}.secret.txt`
+                ? `eth-sol_${getFormattedDatetime()}.secret.txt`
                 : mode === 'sol-eth'
-                    ? `solana_deposit_${getFormattedDatetime()}.secret.txt`
+                    ? `sol-eth_${getFormattedDatetime()}.secret.txt`
                     : null;
 
         if (!filename) {

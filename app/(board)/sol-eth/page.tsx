@@ -109,6 +109,12 @@ export default function Page() {
 
             const txSig = await executeJsonTransaction(res_1.data.transaction, wallet);
 
+            addToast({
+                title: 'Caution!',
+                description: 'Do not refresh page until secret note shows, for instance SOL deposit for bridge to ETH is very slow.',
+                color: 'warning',
+            });
+
             // Set session ID
             localStorage.setItem('sessionId', res_1.data.sessionId);
             const res_2 = await MixAction.validateSOLDeposit(res_1.data.sessionId, txSig);
