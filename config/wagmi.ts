@@ -12,6 +12,10 @@ export const config = getDefaultConfig({
         {
             groupName: 'Popular',
             wallets: [metaMaskWallet, phantomWallet]
+        },
+        {
+            groupName: 'Recommended',
+            wallets: [metaMaskWallet, phantomWallet]
         }
     ]
 });

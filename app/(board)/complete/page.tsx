@@ -2,13 +2,12 @@
 
 import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Textarea } from '@heroui/input';
-import { Card, CardBody, CardHeader } from '@heroui/card';
-import { Button } from '@heroui/button';
 import { addToast } from '@heroui/toast';
-import { saveAs } from 'file-saver';
 
 import { getFormattedDatetime } from '@/util';
+import CustomTextArea from '@/components/custom-textarea';
+import Button from '@/components/button';
+import { CopyIcon, DownloadIcon } from '@/components/icons';
 
 function Page() {
   const searchParams = useSearchParams();
@@ -47,52 +46,56 @@ function Page() {
       });
       return;
     }
-    const blob = new Blob([note], { type: 'text/plain;charset=utf-8' });
-    saveAs(blob, 'note.txt');
+
+    const blob = new Blob([note], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center py-2">
-      <Card className="flex h-[400px] w-full overflow-hidden sm:w-[400px]">
-        <CardHeader className="flex items-center justify-center py-5">
-          <h1 className="flex text-lg">BackUp your secret Note</h1>
-        </CardHeader>
-        <CardBody className="flex w-full flex-col gap-3 overflow-hidden">
-          <div
-            className="relative h-[200px] w-full"
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
-          >
-            <Textarea
-              value={showNote ? note : '•'.repeat(note.length)}
-              disabled
-              className="h-full w-full font-mono tracking-widest"
-            />
-            {hovering && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <Button
-                  color={showNote ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => setShowNote(!showNote)}
-                  className="pointer-events-auto"
-                >
-                  {showNote ? 'Hide Note' : 'Show Note'}
-                </Button>
-              </div>
-            )}
-          </div>
+    <>
+      <div className="flex items-center justify-center">
+        <h1 className="font-calSans text-xl lg:text-[25px]">Back up your secret note</h1>
+      </div>
+      <div className="flex w-full flex-col gap-3">
+        <div className="relative w-full" onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
+          <CustomTextArea
+            value={showNote ? note : '*'.repeat(note.length)}
+            disabled
+            className="w-full font-mono tracking-widest"
+            minRows={10}
+            maxRows={10}
+          />
+          {hovering && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <Button
+                variantColor={showNote ? 'blue' : 'primary'}
+                onClick={() => setShowNote(!showNote)}
+                className="pointer-events-auto"
+              >
+                {showNote ? 'Hide Note' : 'Show Note'}
+              </Button>
+            </div>
+          )}
+        </div>
 
-          <div className="mt-2 flex w-full justify-center gap-2 sm:flex-row sm:justify-between">
-            <Button color="primary" className="flex w-full" onPress={handleCopy}>
-              Copy Note
-            </Button>
-            <Button color="primary" className="flex w-full" onPress={handleDownload}>
-              Download
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+        <div className="mt-2 flex w-full flex-col justify-center gap-2 sm:justify-between lg:flex-row">
+          <Button variantColor="blue" variants="outline" className="flex w-full" onClick={handleCopy}>
+            Copy Note <CopyIcon />
+          </Button>
+          <Button variantColor="blue" className="flex w-full" onClick={handleDownload}>
+            Download <DownloadIcon />
+          </Button>
+        </div>
+      </div>
+    </>
   );
 }
 

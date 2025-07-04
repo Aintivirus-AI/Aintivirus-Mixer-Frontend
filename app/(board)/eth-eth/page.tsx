@@ -1,19 +1,16 @@
 'use client';
 // ** import external libraries
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
-import { Card, CardBody, CardHeader } from '@heroui/card';
-import { Tabs, Tab } from '@heroui/tabs';
-import { Input, Textarea } from '@heroui/input';
-import { Button } from '@heroui/button';
-import { Select, SelectItem } from '@heroui/select';
+import { SelectItem } from '@heroui/select';
 import { useAccount } from 'wagmi';
 import { getWalletClient } from '@wagmi/core';
 import { addToast } from '@heroui/toast';
 
 //** import custom components
 import { CustomConnectButton } from '@/components/custom-connectbutton';
+import CautionModal from '@/components/caution-modal';
 
 // ** import api action
 import MixAction from '@/actions/MixAction';
@@ -21,6 +18,12 @@ import { config as wagmiConfig } from '@/config/wagmi';
 
 // ** import util
 import { ENV } from '@/config/env';
+import Tabs from '@/components/tabs';
+import CustomSelect from '@/components/custom-select';
+import Button from '@/components/button';
+import CustomInput from '@/components/custom-input';
+import CustomTextArea from '@/components/custom-textarea';
+import { Tab } from '@heroui/tabs';
 
 const currencies = [
     { key: 'eth', label: 'ETH' },
@@ -47,13 +50,26 @@ export default function Page() {
     const router = useRouter();
     const { isConnected, address } = useAccount();
     const [loading, setLoading] = useState(false);
-    const [selected, setSelected] = React.useState('deposit');
+    const [cautionModalOpen, setCautionModalOpen] = useState(false)
+    const [selected, setSelected] = useState('deposit');
 
     const [selectedCurrency, setSelectedCurrency] = useState('eth');
     const [amount, setAmount] = useState(selectedCurrency === 'eth' ? amountsEth[0].key : amountsToken[0].key);
 
     const [note, setNote] = useState('');
     const [recipientAddress, setRecipientAddress] = useState('');
+
+    const handleClickToSelect = () => {
+        if(!isConnected) {
+            addToast({
+                title: "Connect Wallet",
+                description: "Please connect wallet before you do anything",
+                color: "warning"
+            })
+
+            return
+        }
+    }
 
     const handleSelectCurrency = (key: string) => {
         setSelectedCurrency(key);
@@ -68,10 +84,10 @@ export default function Page() {
         if (ENV.PROJECT_DISABLE) return;
         if (!address) {
             addToast({
-                title: 'Oops!',
-                description: 'Please connect your wallet',
-                color: 'danger',
-            });
+                title: "Connect Wallet",
+                description: "Please connect wallet before you do anything",
+                color: "warning"
+            })
 
             return;
         }
@@ -89,20 +105,16 @@ export default function Page() {
         try {
             setLoading(true);
             // Fetch session ID & transaction Data
-            const res_1 = await MixAction.depositOnEthereum(
-                Number(amount), 
-                selectedCurrency === 'eth' ? 1 : 2, 
-                address
-            );
+            const res_1 = await MixAction.depositOnEthereum(Number(amount), selectedCurrency === 'eth' ? 1 : 2, address);
 
-            if(!res_1.success) {
+            if (!res_1.success) {
                 addToast({
                     title: 'Oops',
                     description: res_1.message,
-                    color: 'danger'
-                })
+                    color: 'danger',
+                });
 
-                return
+                return;
             }
 
             const walletClient = await getWalletClient(wagmiConfig);
@@ -117,32 +129,28 @@ export default function Page() {
 
             for (const txData of JSON.parse(res_1.data.transactions)) {
                 const tx = await signer.sendTransaction(txData);
+                
+                // Shows Do not refresh modal
+                setCautionModalOpen(true)
+                
                 const receipt = await tx.wait();
 
                 txHash = receipt?.hash || '';
             }
 
-            addToast({
-                title: 'Caution!',
-                description: 'Do not refresh page until secret note shows, for instance SOL deposit for bridge to ETH is very slow.',
-                color: 'warning',
-            });
-
             // Set session ID
             localStorage.setItem('sessionId', res_1.data.sessionId);
 
             const res_2 = await MixAction.validateETHDeposit(res_1.data.sessionId, txHash);
-            if(!res_2.success) {
+            if (!res_2.success) {
                 addToast({
                     title: 'Oops',
                     description: res_1.message,
-                    color: 'danger'
-                })
+                    color: 'danger',
+                });
 
-                return
+                return;
             }
-
-            // handleAutoDownload(res_2.data.note);
 
             addToast({
                 title: 'Success!',
@@ -150,6 +158,7 @@ export default function Page() {
                 color: 'success',
             });
 
+            setCautionModalOpen(false)
             router.push(`/complete?note=${res_2.data.note}&mode=eth-sol`);
         } catch (error: any) {
             if (error.code === 'CALL_EXCEPTION') {
@@ -186,10 +195,10 @@ export default function Page() {
         if (ENV.PROJECT_DISABLE) return;
         if (!isConnected) {
             addToast({
-                title: 'Oops!',
-                description: 'Please connect your wallet',
-                color: 'danger',
-            });
+                title: "Connect Wallet",
+                description: "Please connect wallet before you do anything",
+                color: "warning"
+            })
 
             return;
         }
@@ -216,16 +225,16 @@ export default function Page() {
 
         try {
             setLoading(true);
-            
+
             const res = await MixAction.withdrawETH(note, recipientAddress);
-            if(!res.success) {
+            if (!res.success) {
                 addToast({
                     title: 'Oops',
                     description: res.message,
-                    color: 'danger'
-                })
+                    color: 'danger',
+                });
 
-                return
+                return;
             }
 
             addToast({
@@ -255,59 +264,51 @@ export default function Page() {
         }
     };
 
-    const handleReadNoteFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (ENV.PROJECT_DISABLE) return;
-        const file = event.target.files?.[0];
-
-        if (!file) return;
-
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            setNote(reader.result as string);
-        };
-        reader.onerror = () => {
-            console.error('Error reading file');
-        };
-        reader.readAsText(file);
-    };
-
     return (
-        <div className="flex w-full flex-col items-center justify-center py-2">
-            <Card className="flex w-full sm:w-[400px]">
-                <CardHeader className="flex items-center justify-center">
-                    <h1 className="text-xl">Ethereum to Ethereum</h1>
-                </CardHeader>
-                <CardBody className="h-full">
-                    <Tabs
-                        fullWidth
-                        aria-label="Tabs form"
-                        selectedKey={selected}
-                        size="md"
-                        onSelectionChange={(key) => setSelected(key.toString())}
-                    >
-                        <Tab key="deposit" title="Deposit">
-                            <div className="flex flex-col gap-4">
-                                <Select
+        <>
+            <div className="flex items-center justify-between">
+                <h1 className="font-calSans text-xl lg:text-[25px]">Ethereum to Ethereum</h1>
+            </div>
+            <div className="h-full">
+                <Tabs
+                    fullWidth
+                    aria-label="Tabs form"
+                    selectedKey={selected}
+                    onSelectionChange={(key) => setSelected(key.toString())}
+                >
+                    <Tab key="deposit" title="Deposit">
+                        <div className="flex flex-col gap-4">
+                            <div onClick={handleClickToSelect}>
+                                <CustomSelect
                                     className="w-full"
                                     label="Currency"
                                     placeholder="Select a currency"
                                     selectedKeys={[selectedCurrency]}
+                                    isDisabled={!isConnected}
                                 >
                                     {currencies.map((currency) => (
                                         <SelectItem key={currency.key} onPress={() => handleSelectCurrency(currency.key)}>
                                             {currency.label}
                                         </SelectItem>
                                     ))}
-                                </Select>
-                                <Select className="w-full" label="Amount" placeholder="Select an amount" selectedKeys={[amount]}>
+                                </CustomSelect>
+                            </div>
+                            <div onClick={handleClickToSelect}>
+                                <CustomSelect 
+                                    className="w-full" 
+                                    label="Amount" 
+                                    placeholder="Select an amount" 
+                                    selectedKeys={[amount]}
+                                    isDisabled={!isConnected}
+                                >
                                     {(selectedCurrency === 'eth' ? amountsEth : amountsToken).map((amount) => (
                                         <SelectItem key={amount.key} onPress={() => handleSelectAmount(amount.key)}>
                                             {amount.label}
                                         </SelectItem>
                                     ))}
-                                </Select>
-                                {/* <Input
+                                </CustomSelect>
+                            </div>
+                            {/* <Input
                                     label="Amount"
                                     placeholder="Enter amount"
                                     step={0.0001}
@@ -316,44 +317,56 @@ export default function Page() {
                                     onChange={(e) => setAmount(e.target.value)}
                                     min={0}
                                 /> */}
-                                <CustomConnectButton />
-                                <div className="flex justify-end gap-2">
-                                    {isConnected ? (
-                                        <Button fullWidth color="primary" isLoading={loading} onPress={handleConfirmDeposit}>
-                                            Confirm Deposit
-                                        </Button>
-                                    ) : (
-                                        <></>
-                                    )}
-                                </div>
+                            <CustomConnectButton />
+                            <div className="flex justify-end gap-2">
+                                {isConnected ? (
+                                    <Button className="w-full" variantColor="blue" isLoading={loading} onClick={handleConfirmDeposit}>
+                                        Confirm Deposit
+                                    </Button>
+                                ) : (
+                                    <></>
+                                )}
                             </div>
-                        </Tab>
-                        <Tab key="withdraw" title="Withdraw">
-                            <div className="flex flex-col gap-4">
-                                {/* <Input
+                        </div>
+                    </Tab>
+                    <Tab key="withdraw" title="Withdraw">
+                        <div className="flex flex-col gap-4">
+                            {/* <Input
                                     accept=".secret"
                                     className="cursor-pointer"
                                     label="Select your note.secret file"
                                     type="file"
                                     onChange={handleReadNoteFile}
                                 /> */}
-                                <Textarea label="Note" height={200} placeholder="Enter your secret note" value={note} onChange={(e) => setNote(e.target.value)} />
-                                <Input
+                            <CustomTextArea
+                                label="Note (Optional)"
+                                height={200}
+                                placeholder="Add a private note for this transaction"
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
+                            />
+                            <div className="w-full">
+                                <CustomInput
                                     required
-                                    label="Recipient Address"
-                                    placeholder="Enter recipient address"
+                                    label="Recipient Wallet Address"
+                                    placeholder="Paste the destination wallet address"
                                     value={recipientAddress}
                                     onChange={(e) => setRecipientAddress(e.target.value)}
                                 />
-                                <CustomConnectButton />
-                                <Button color="primary" isLoading={loading} onPress={handleConfirmWithdraw}>
-                                    Confirm Withdraw
-                                </Button>
+                                <p className="mt-2 text-xs tracking-[-0/52px] text-gray-60/70 lg:text-[13px]">
+                                    Make sure the address matches the selected network.
+                                </p>
                             </div>
-                        </Tab>
-                    </Tabs>
-                </CardBody>
-            </Card>
-        </div>
+
+                            <CustomConnectButton />
+                            <Button variantColor="blue" disabled={!isConnected} isLoading={loading} onClick={handleConfirmWithdraw}>
+                                Confirm Withdraw
+                            </Button>
+                        </div>
+                    </Tab>
+                </Tabs>
+            </div>
+            <CautionModal isOpen={cautionModalOpen} onClose={() => setCautionModalOpen(false)} />
+        </>
     );
 }

@@ -4,11 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
 import { Transaction, TransactionInstruction, PublicKey } from '@solana/web3.js';
-import { Card, CardBody, CardHeader } from '@heroui/card';
-import { Tabs, Tab } from '@heroui/tabs';
-import { Input, Textarea } from '@heroui/input';
-import { Button } from '@heroui/button';
-import { Select, SelectItem } from '@heroui/select';
+import { Tab } from '@heroui/tabs';
+import { SelectItem } from '@heroui/select';
 import { useAccount } from 'wagmi';
 import { addToast } from '@heroui/toast';
 import { useWallet, useConnection, WalletContextState } from '@solana/wallet-adapter-react';
@@ -16,12 +13,19 @@ import { useWallet, useConnection, WalletContextState } from '@solana/wallet-ada
 //** import custom components
 import { CustomConnectButton } from '@/components/custom-connectbutton';
 import SolanaWalletButton from '@/components/solana-wallet-button';
+import CautionModal from '@/components/caution-modal';
 
 // ** import api action
 import MixAction from '@/actions/MixAction';
 
 // ** import util
 import { ENV } from '@/config/env';
+import { QuestionIcon } from '@/components/icons';
+import Tabs from '@/components/tabs';
+import CustomSelect from '@/components/custom-select';
+import Button from '@/components/button';
+import CustomTextArea from '@/components/custom-textarea';
+import CustomInput from '@/components/custom-input';
 
 const currencies = [
     { key: 'sol', label: 'SOL' },
@@ -50,6 +54,7 @@ export default function Page() {
     const wallet = useWallet();
 
     const [loading, setLoading] = useState(false);
+    const [cautionModalOpen, setCautionModalOpen] = useState(false)
     const [selected, setSelected] = React.useState('deposit');
 
     const [selectedCurrency, setSelectedCurrency] = useState('sol');
@@ -57,6 +62,18 @@ export default function Page() {
 
     const [note, setNote] = useState('');
     const [recipientAddress, setRecipientAddress] = useState('');
+
+    const handleClickToSelect = () => {
+        if (!wallet.connected) {
+            addToast({
+                title: "Connect Wallet",
+                description: "Please connect wallet before you do anything",
+                color: "warning"
+            })
+
+            return
+        }
+    }
 
     const handleSelectCurrency = (key: string) => {
         setSelectedCurrency(key);
@@ -71,10 +88,10 @@ export default function Page() {
         if (ENV.PROJECT_DISABLE) return;
         if (!wallet.connected || !wallet.publicKey) {
             addToast({
-                title: 'Oops!',
-                description: 'Please connect your wallet',
-                color: 'danger',
-            });
+                title: "Connect Wallet",
+                description: "Please connect wallet before you do anything",
+                color: "warning"
+            })
 
             return;
         }
@@ -101,19 +118,13 @@ export default function Page() {
                 addToast({
                     title: 'Oops',
                     description: res_1.message,
-                    color: 'danger'
-                })
+                    color: 'danger',
+                });
 
-                return
+                return;
             }
 
             const txSig = await executeJsonTransaction(res_1.data.transaction, wallet);
-
-            addToast({
-                title: 'Caution!',
-                description: 'Do not refresh page until secret note shows, for instance SOL deposit for bridge to ETH is very slow.',
-                color: 'warning',
-            });
 
             // Set session ID
             localStorage.setItem('sessionId', res_1.data.sessionId);
@@ -122,13 +133,11 @@ export default function Page() {
                 addToast({
                     title: 'Oops',
                     description: res_2.message,
-                    color: 'danger'
-                })
+                    color: 'danger',
+                });
 
-                return
+                return;
             }
-
-            // handleAutoDownload(res_2.data.note);
 
             addToast({
                 title: 'Success!',
@@ -136,6 +145,7 @@ export default function Page() {
                 color: 'success',
             });
 
+            setCautionModalOpen(false)
             router.push(`/complete?note=${res_2.data.note}&mode=sol-eth`);
         } catch (error: any) {
             if (error.code === 'CALL_EXCEPTION') {
@@ -172,10 +182,10 @@ export default function Page() {
         if (ENV.PROJECT_DISABLE) return;
         if (!isConnected) {
             addToast({
-                title: 'Oops!',
-                description: 'Please connect your wallet',
-                color: 'danger',
-            });
+                title: "Connect Wallet",
+                description: "Please connect wallet before you do anything",
+                color: "warning"
+            })
 
             return;
         }
@@ -207,10 +217,10 @@ export default function Page() {
                 addToast({
                     title: 'Oops',
                     description: res.message,
-                    color: 'danger'
-                })
+                    color: 'danger',
+                });
 
-                return
+                return;
             }
 
             // const walletClient = await getWalletClient(wagmiConfig);
@@ -251,23 +261,6 @@ export default function Page() {
         }
     };
 
-    const handleReadNoteFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (ENV.PROJECT_DISABLE) return;
-        const file = event.target.files?.[0];
-
-        if (!file) return;
-
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            setNote(reader.result as string);
-        };
-        reader.onerror = () => {
-            console.error('Error reading file');
-        };
-        reader.readAsText(file);
-    };
-
     const executeJsonTransaction = async (jsonTx: any, wallet: WalletContextState): Promise<string> => {
         if (!wallet.publicKey || !wallet.signTransaction) {
             throw new Error('Wallet not connected or cannot sign');
@@ -299,6 +292,8 @@ export default function Page() {
         const signedTx = await wallet.signTransaction(tx);
         const rawTx = signedTx.serialize();
 
+        setCautionModalOpen(true)
+
         const signature = await connection.sendRawTransaction(rawTx, {
             skipPreflight: false,
             preflightCommitment: 'confirmed',
@@ -311,78 +306,97 @@ export default function Page() {
     };
 
     return (
-        <div className="flex w-full flex-col items-center justify-center py-2">
-            <Card className="flex w-full sm:w-[400px]">
-                <CardHeader className="flex items-center justify-center">
-                    <h1 className="text-xl">Solana to Ethereum</h1>
-                </CardHeader>
-                <CardBody className="h-full">
-                    <Tabs
-                        fullWidth
-                        aria-label="Tabs form"
-                        selectedKey={selected}
-                        size="md"
-                        onSelectionChange={(key) => setSelected(key.toString())}
-                    >
-                        <Tab key="deposit" title="Deposit">
-                            <div className="flex flex-col gap-4">
-                                <Select
+        <>
+            <div className="flex items-center justify-between">
+                <h1 className="font-calSans text-xl lg:text-[25px]">Solana to Ethereum</h1>
+            </div>
+            <div className="h-full">
+                <Tabs
+                    fullWidth
+                    aria-label="Tabs form"
+                    selectedKey={selected}
+                    onSelectionChange={(key) => setSelected(key.toString())}
+                >
+                    <Tab key="deposit" title="Deposit">
+                        <div className="flex flex-col gap-4">
+                            <div onClick={handleClickToSelect}>
+                                <CustomSelect
                                     className="w-full"
                                     label="Currency"
                                     placeholder="Select a currency"
                                     selectedKeys={[selectedCurrency]}
+                                    isDisabled={!wallet.connected}
                                 >
                                     {currencies.map((currency) => (
                                         <SelectItem key={currency.key} onPress={() => handleSelectCurrency(currency.key)}>
                                             {currency.label}
                                         </SelectItem>
                                     ))}
-                                </Select>
-                                <Select className="w-full" label="Amount" placeholder="Select an amount" selectedKeys={[amount]}>
+                                </CustomSelect>
+                            </div>
+                            <div onClick={handleClickToSelect}>
+                                <CustomSelect 
+                                    className="w-full" 
+                                    label="Amount" 
+                                    placeholder="Select an amount" 
+                                    selectedKeys={[amount]}
+                                    isDisabled={!wallet.connected}
+                                >
                                     {(selectedCurrency === 'sol' ? amountsSol : amountsToken).map((amount) => (
                                         <SelectItem key={amount.key} onPress={() => handleSelectAmount(amount.key)}>
                                             {amount.label}
                                         </SelectItem>
                                     ))}
-                                </Select>
-                                <SolanaWalletButton className="flex w-full" />
-                                <div className="flex justify-end gap-2">
-                                    {wallet.connected ? (
-                                        <Button fullWidth color="primary" isLoading={loading} onPress={handleConfirmDeposit}>
-                                            Confirm Deposit
-                                        </Button>
-                                    ) : (
-                                        <></>
-                                    )}
-                                </div>
+                                </CustomSelect>
                             </div>
-                        </Tab>
-                        <Tab key="withdraw" title="Withdraw">
-                            <div className="flex flex-col gap-4">
-                                {/* <Input
+                            <SolanaWalletButton className="flex w-full" />
+                            <div className="flex justify-end gap-2">
+                                {wallet.connected ? (
+                                    <Button className="w-full" variantColor="blue" isLoading={loading} onClick={handleConfirmDeposit}>
+                                        Confirm Deposit
+                                    </Button>
+                                ) : (
+                                    <></>
+                                )}
+                            </div>
+                        </div>
+                    </Tab>
+                    <Tab key="withdraw" title="Withdraw">
+                        <div className="flex flex-col gap-4">
+                            {/* <Input
                                     accept=".secret"
                                     className="cursor-pointer"
                                     label="Select your note.secret file"
                                     type="file"
                                     onChange={handleReadNoteFile}
                                 /> */}
-                                <Textarea label="Note" placeholder="Enter your secret note" value={note} onChange={(e) => setNote(e.target.value)} />
-                                <Input
+                            <CustomTextArea
+                                label="Note (Optional)"
+                                placeholder="Add a private note for this transaction"
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
+                            />
+                            <div className="w-full">
+                                <CustomInput
                                     required
-                                    label="Recipient Address"
-                                    placeholder="Enter recipient address"
+                                    label="Recipient Wallet Address"
+                                    placeholder="Paste the destination wallet address"
                                     value={recipientAddress}
                                     onChange={(e) => setRecipientAddress(e.target.value)}
                                 />
-                                <CustomConnectButton />
-                                <Button color="primary" isLoading={loading} onPress={handleConfirmWithdraw}>
-                                    Confirm Withdraw
-                                </Button>
+                                <p className="mt-2 text-xs tracking-[-0/52px] text-gray-60/70 lg:text-[13px]">
+                                    Make sure the address matches the selected network.
+                                </p>
                             </div>
-                        </Tab>
-                    </Tabs>
-                </CardBody>
-            </Card>
-        </div>
+                            <CustomConnectButton />
+                            <Button variantColor="blue" disabled={!isConnected} isLoading={loading} onClick={handleConfirmWithdraw}>
+                                Confirm Withdraw
+                            </Button>
+                        </div>
+                    </Tab>
+                </Tabs>
+            </div>
+            <CautionModal isOpen={cautionModalOpen} onClose={() => setCautionModalOpen(false)} />
+        </>
     );
 }

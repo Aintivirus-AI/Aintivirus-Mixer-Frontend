@@ -5,7 +5,6 @@ import type { ThemeProviderProps } from 'next-themes';
 import * as React from 'react';
 import { HeroUIProvider } from '@heroui/system';
 import { useRouter } from 'next/navigation';
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { ToastProvider } from '@heroui/toast';
 
 // ** import external libraries (Ethereum development Kit)
@@ -34,7 +33,6 @@ const queryClient = new QueryClient();
 
 export interface ProvidersProps {
     children: React.ReactNode;
-    themeProps?: ThemeProviderProps;
 }
 
 declare module '@react-types/shared' {
@@ -43,7 +41,7 @@ declare module '@react-types/shared' {
     }
 }
 
-export function Providers({ children, themeProps }: ProvidersProps) {
+export function Providers({ children }: ProvidersProps) {
     const router = useRouter();
 
     const solanaMainnet = WalletAdapterNetwork.Mainnet;
@@ -63,7 +61,7 @@ export function Providers({ children, themeProps }: ProvidersProps) {
             new AlphaWalletAdapter(),
             new AvanaWalletAdapter(),
         ],
-        [solanaDevnet]
+        [solanaMainnet, solanaDevnet]
     );
 
     return (
@@ -75,7 +73,7 @@ export function Providers({ children, themeProps }: ProvidersProps) {
                             <WalletModalProvider>
                                 <HeroUIProvider navigate={router.push}>
                                     <ToastProvider placement="top-right" />
-                                    <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+                                    {children}
                                 </HeroUIProvider>
                             </WalletModalProvider>
                         </WalletProvider>

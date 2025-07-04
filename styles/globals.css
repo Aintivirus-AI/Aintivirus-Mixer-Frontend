@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --background: black;
+  --foreground: #ededed;
+
+  --content-width: 1440px;
+  --content-padding-x: 120px;
+}
+
+.wallet-adapter-button-trigger {
+  background: linear-gradient(95deg, #024aec 0.86%, #03beff 96.99%);
+  box-shadow: 0px 0px 0px 1px #1b78d0;
+  font-size: 15px !important;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
