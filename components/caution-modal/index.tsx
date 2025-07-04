@@ -16,7 +16,7 @@ const CautionModal: React.FC<ICautionModalProps> = ({ isOpen, onClose }) => {
       <div className="flex w-full flex-col items-center justify-center gap-3">
         <div className="flex rounded-full bg-[#027EF44D] bg-opacity-10 p-5">
           <div className="flex items-center justify-center rounded-full bg-[#027EF44D] bg-opacity-30 p-6">
-            <img className="flex w-[50px]" src="/warning.png" />
+            <img className="flex w-[50px]" src="/warning.png" alt="Warning" />
           </div>
         </div>
         <div className="flex items-center justify-center">

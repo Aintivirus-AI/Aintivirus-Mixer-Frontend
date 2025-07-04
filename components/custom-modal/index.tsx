@@ -58,7 +58,7 @@ export default function Modal({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} role="button" tabIndex={0} />
 
       <div className={`relative flex max-h-[90vh] w-[477px] max-w-full flex-col rounded-[40px] bg-black-110`}>
         <div className="flex flex-shrink-0 items-center justify-between px-[34px] pt-[40px]">

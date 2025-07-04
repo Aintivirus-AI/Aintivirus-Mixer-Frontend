@@ -283,7 +283,7 @@ export default function Page() {
         >
           <Tab key="deposit" title="Deposit">
             <div className="flex flex-col gap-4">
-              <div onClick={handleClickToSelect}>
+              <div onClick={handleClickToSelect} role="button" tabIndex={0}>
                 <CustomSelect
                   className="w-full"
                   isDisabled={!isConnected}
@@ -298,7 +298,7 @@ export default function Page() {
                   ))}
                 </CustomSelect>
               </div>
-              <div onClick={handleClickToSelect}>
+              <div onClick={handleClickToSelect} role="button" tabIndex={0}>
                 <CustomSelect
                   className="w-full"
                   isDisabled={!isConnected}
