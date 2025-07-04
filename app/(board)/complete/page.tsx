@@ -44,6 +44,7 @@ function Page() {
         description: 'Invalid mixing mode',
         color: 'warning',
       });
+
       return;
     }
 
@@ -51,6 +52,7 @@ function Page() {
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
+
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -67,18 +69,18 @@ function Page() {
       <div className="flex w-full flex-col gap-3">
         <div className="relative w-full" onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
           <CustomTextArea
-            value={showNote ? note : '*'.repeat(note.length)}
             disabled
             className="w-full font-mono tracking-widest"
-            minRows={10}
             maxRows={10}
+            minRows={10}
+            value={showNote ? note : '*'.repeat(note.length)}
           />
           {hovering && (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <Button
+                className="pointer-events-auto"
                 variantColor={showNote ? 'blue' : 'primary'}
                 onClick={() => setShowNote(!showNote)}
-                className="pointer-events-auto"
               >
                 {showNote ? 'Hide Note' : 'Show Note'}
               </Button>
@@ -87,10 +89,10 @@ function Page() {
         </div>
 
         <div className="mt-2 flex w-full flex-col justify-center gap-2 sm:justify-between lg:flex-row">
-          <Button variantColor="blue" variants="outline" className="flex w-full" onClick={handleCopy}>
+          <Button className="flex w-full" variantColor="blue" variants="outline" onClick={handleCopy}>
             Copy Note <CopyIcon />
           </Button>
-          <Button variantColor="blue" className="flex w-full" onClick={handleDownload}>
+          <Button className="flex w-full" variantColor="blue" onClick={handleDownload}>
             Download <DownloadIcon />
           </Button>
         </div>

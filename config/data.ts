@@ -1,10 +1,10 @@
 type CurrenciesMap = {
-    ethereum: {
-        [key: string]: string;
-    };
-    solana: {
-        [key: string]: string;
-    };
+  ethereum: {
+    [key: string]: string;
+  };
+  solana: {
+    [key: string]: string;
+  };
 };
 
 // export const currenciesMap: CurrenciesMap = {
@@ -19,13 +19,14 @@ type CurrenciesMap = {
 //     },
 // };
 
-export const currenciesMap: CurrenciesMap = { // Testnet
-    ethereum: {
-        "eth": "0x0000000000000000000000000000000000000000",
-        "ainti": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    },
-    solana: {
-        "sol": "So11111111111111111111111111111111111111112",
-        "ainti": "Bq2cu6o9bhdecFxD7pLbb3VMakbo9TAQgU8jUUzjCAh3",
-    }
-}
+export const currenciesMap: CurrenciesMap = {
+  // Testnet
+  ethereum: {
+    eth: '0x0000000000000000000000000000000000000000',
+    ainti: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+  },
+  solana: {
+    sol: 'So11111111111111111111111111111111111111112',
+    ainti: 'Bq2cu6o9bhdecFxD7pLbb3VMakbo9TAQgU8jUUzjCAh3',
+  },
+};
