@@ -9,6 +9,7 @@ import { useWallet, useConnection, WalletContextState } from '@solana/wallet-ada
 import { addToast } from '@heroui/toast';
 
 import MixAction from '@/actions/MixAction';
+
 import SolanaWalletButton from '@/components/solana-wallet-button';
 
 function Page() {
@@ -44,7 +45,6 @@ function Page() {
           description: 'Please input valid Solana account',
           color: 'danger',
         });
-
         return;
       }
 
@@ -54,7 +54,6 @@ function Page() {
           description: 'Please connect wallet',
           color: 'danger',
         });
-
         return;
       }
 
@@ -95,7 +94,6 @@ function Page() {
           description: 'Please input valid Solana account',
           color: 'danger',
         });
-
         return;
       }
 
@@ -105,7 +103,6 @@ function Page() {
           description: 'Please connect wallet',
           color: 'danger',
         });
-
         return;
       }
 
@@ -145,7 +142,6 @@ function Page() {
           description: 'Please input valid fee rate',
           color: 'danger',
         });
-
         return;
       }
 
@@ -155,7 +151,6 @@ function Page() {
           description: 'Please connect wallet',
           color: 'danger',
         });
-
         return;
       }
 
@@ -195,7 +190,6 @@ function Page() {
           description: 'Please input valid fee rate',
           color: 'danger',
         });
-
         return;
       }
 
@@ -205,7 +199,6 @@ function Page() {
           description: 'Please connect wallet',
           color: 'danger',
         });
-
         return;
       }
 
@@ -245,7 +238,6 @@ function Page() {
           description: 'Please input valid amount',
           color: 'danger',
         });
-
         return;
       }
 
@@ -255,7 +247,6 @@ function Page() {
           description: 'Please connect wallet',
           color: 'danger',
         });
-
         return;
       }
 
@@ -295,7 +286,6 @@ function Page() {
           description: 'Please input valid amount',
           color: 'danger',
         });
-
         return;
       }
 
@@ -305,7 +295,6 @@ function Page() {
           description: 'Please connect wallet',
           color: 'danger',
         });
-
         return;
       }
 
@@ -438,102 +427,102 @@ function Page() {
           <CardBody className="relative z-0 flex w-full flex-row flex-wrap justify-center gap-3 overflow-hidden pb-10">
             <div className="flex items-end justify-between gap-2 sm:w-[400px]">
               <Input
-                disabled={loading || fetchingDefault}
                 label="New Operator"
-                value={maintainer}
                 variant="underlined"
+                value={maintainer}
+                disabled={loading || fetchingDefault}
                 onChange={(e) => setMaintainer(e.target.value)}
               />
               <Button
                 color={maintainer === defaultOperatorSettings.maintainer ? 'default' : 'primary'}
-                disabled={maintainer === defaultOperatorSettings.maintainer}
                 isLoading={loading}
                 onClick={handleSetMaintainer}
+                disabled={maintainer === defaultOperatorSettings.maintainer}
               >
                 Confirm
               </Button>
             </div>
             <div className="flex items-end justify-between gap-2 sm:w-[400px]">
               <Input
-                disabled={loading || fetchingDefault}
                 label="Fee Collector"
-                value={feeCollector}
                 variant="underlined"
+                value={feeCollector}
+                disabled={loading || fetchingDefault}
                 onChange={(e) => setFeeCollector(e.target.value)}
               />
               <Button
                 color={feeCollector === defaultOperatorSettings.feeCollector ? 'default' : 'primary'}
-                disabled={feeCollector === defaultOperatorSettings.feeCollector}
                 isLoading={loading}
                 onClick={handleSetFeeCollector}
+                disabled={feeCollector === defaultOperatorSettings.feeCollector}
               >
                 Confirm
               </Button>
             </div>
             <div className="flex items-end justify-between gap-2 sm:w-[400px]">
               <Input
-                disabled={loading || fetchingDefault}
                 label="SOL Fee"
-                value={refund.toString()}
                 variant="underlined"
+                value={refund.toString()}
+                disabled={loading || fetchingDefault}
                 onChange={(e) => setRefund(e.target.value)}
               />
               <Button
                 color={refund === defaultOperatorSettings.refund ? 'default' : 'primary'}
-                disabled={refund === defaultOperatorSettings.refund}
                 isLoading={loading}
                 onClick={handleSetRefund}
+                disabled={refund === defaultOperatorSettings.refund}
               >
                 Confirm
               </Button>
             </div>
             <div className="flex items-end justify-between gap-2 sm:w-[400px]">
               <Input
-                disabled={loading || fetchingDefault}
                 label="AINTI Fee"
-                value={fee.toString()}
                 variant="underlined"
+                value={fee.toString()}
+                disabled={loading || fetchingDefault}
                 onChange={(e) => setFee(e.target.value)}
               />
               <Button
                 color={fee === defaultOperatorSettings.fee ? 'default' : 'primary'}
-                disabled={fee === defaultOperatorSettings.fee}
                 isLoading={loading}
                 onClick={handleSetFee}
+                disabled={fee === defaultOperatorSettings.fee}
               >
                 Confirm
               </Button>
             </div>
             <div className="flex items-end justify-between gap-2 sm:w-[400px]">
               <Input
-                disabled={loading || fetchingDefault}
                 label="Min SOL deposit amount"
-                value={minSolDepositAmount.toString()}
                 variant="underlined"
+                value={minSolDepositAmount.toString()}
+                disabled={loading || fetchingDefault}
                 onChange={(e) => setMinSolDepositAmount(e.target.value)}
               />
               <Button
                 color={minSolDepositAmount === defaultOperatorSettings.minSolDepositAmount ? 'default' : 'primary'}
-                disabled={minSolDepositAmount === defaultOperatorSettings.minSolDepositAmount}
                 isLoading={loading}
                 onClick={handleSetMinSolDepositAmount}
+                disabled={minSolDepositAmount === defaultOperatorSettings.minSolDepositAmount}
               >
                 Confirm
               </Button>
             </div>
             <div className="flex items-end justify-between gap-2 sm:w-[400px]">
               <Input
-                disabled={loading || fetchingDefault}
                 label="Min AINTI deposit amount"
-                value={minTokenDepositAmount.toString()}
                 variant="underlined"
+                value={minTokenDepositAmount.toString()}
+                disabled={loading || fetchingDefault}
                 onChange={(e) => setMinTokenDepositAmount(e.target.value)}
               />
               <Button
                 color={minTokenDepositAmount === defaultOperatorSettings.minTokenDepositAmount ? 'default' : 'primary'}
-                disabled={minTokenDepositAmount === defaultOperatorSettings.minTokenDepositAmount}
                 isLoading={loading}
                 onClick={handleSetMinTokenDepositAmount}
+                disabled={minTokenDepositAmount === defaultOperatorSettings.minTokenDepositAmount}
               >
                 Confirm
               </Button>

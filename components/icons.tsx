@@ -56,7 +56,7 @@ export const SunFilledIcon = ({ size = 24, width, height, ...props }: IconSvgPro
 
 export const ArrowDownIcon: FC<IconSvgProps> = ({ ...props }) => {
   return (
-    <svg fill="none" height="8" viewBox="0 0 13 8" width="13" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="8" viewBox="0 0 13 8" fill="none" {...props}>
       <path
         d="M6.52697 7.39152C6.41544 7.39216 6.30488 7.37078 6.20163 7.32861C6.09837 7.28644 6.00446 7.2243 5.92528 7.14576L0.840538 2.06102C0.680959 1.90144 0.591309 1.685 0.591309 1.45932C0.591309 1.23364 0.680959 1.01721 0.840538 0.857628C1.00012 0.698049 1.21655 0.608398 1.44223 0.608398C1.66791 0.608398 1.88435 0.698049 2.04393 0.857628L6.52697 5.34915L11.01 0.866103C11.1721 0.727267 11.3807 0.65472 11.594 0.662958C11.8072 0.671196 12.0096 0.759614 12.1605 0.910541C12.3114 1.06147 12.3998 1.26379 12.4081 1.47707C12.4163 1.69036 12.3438 1.8989 12.2049 2.06102L7.12019 7.14576C6.96234 7.30232 6.74929 7.39058 6.52697 7.39152Z"
         fill="#C1C3C3"
@@ -67,16 +67,16 @@ export const ArrowDownIcon: FC<IconSvgProps> = ({ ...props }) => {
 
 export const CloseIcon: FC<IconSvgProps> = ({ ...props }) => {
   return (
-    <svg {...props} fill="none" height="22" viewBox="0 0 24 25" width="21" xmlns="http://www.w3.org/2000/svg">
-      <path d="M18 6.66821L6 18.6682" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-      <path d="M6 6.66821L18 18.6682" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="21" height="22" viewBox="0 0 24 25" fill="none">
+      <path d="M18 6.66821L6 18.6682" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 6.66821L18 18.6682" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };
 
 export const MenuIcon: FC<IconSvgProps> = ({ ...props }) => {
   return (
-    <svg fill="none" height="18" viewBox="0 0 21 18" width="21" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="18" viewBox="0 0 21 18" fill="none" {...props}>
       <path
         d="M20 16C20.552 16 21 16.4475 21 17C21 17.5525 20.552 18 20 18C19.6995 18 1.3005 18 1 18C0.448 18 0 17.5525 0 17C0 16.4475 0.448 16 1 16C1.3005 16 19.6995 16 20 16ZM20 8C20.552 8 21 8.4475 21 9C21 9.5525 20.552 10 20 10C19.6995 10 1.3005 10 1 10C0.448 10 0 9.5525 0 9C0 8.4475 0.448 8 1 8C1.3005 8 19.6995 8 20 8ZM20 0C20.552 0 21 0.4475 21 1C21 1.5525 20.552 2 20 2C19.6995 2 1.3005 2 1 2C0.448 2 0 1.5525 0 1C0 0.4475 0.448 0 1 0C1.3005 0 19.6995 0 20 0Z"
         fill="white"
@@ -87,7 +87,7 @@ export const MenuIcon: FC<IconSvgProps> = ({ ...props }) => {
 
 export const QuestionIcon: FC<IconSvgProps> = ({ ...props }) => {
   return (
-    <svg fill="none" height="23" viewBox="0 0 23 23" width="23" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 23 23" fill="none" {...props}>
       <path
         d="M11.25 22.5C9.02496 22.5 6.84989 21.8402 4.99984 20.604C3.14979 19.3679 1.70785 17.6109 0.85636 15.5552C0.00487445 13.4995 -0.217913 11.2375 0.216171 9.05524C0.650254 6.87295 1.72171 4.86839 3.29505 3.29505C4.86839 1.72171 6.87295 0.650254 9.05524 0.216171C11.2375 -0.217913 13.4995 0.00487445 15.5552 0.85636C17.6109 1.70785 19.3679 3.14979 20.604 4.99984C21.8402 6.84989 22.5 9.02496 22.5 11.25C22.4966 14.2326 21.3102 17.0921 19.2012 19.2012C17.0921 21.3102 14.2326 22.4966 11.25 22.5ZM11.25 1.73077C9.36728 1.73077 7.52683 2.28907 5.9614 3.33505C4.39597 4.38104 3.17587 5.86774 2.45538 7.60715C1.73489 9.34656 1.54638 11.2606 1.91368 13.1071C2.28098 14.9537 3.1876 16.6498 4.51889 17.9811C5.85018 19.3124 7.54634 20.219 9.39289 20.5863C11.2394 20.9536 13.1534 20.7651 14.8929 20.0446C16.6323 19.3241 18.119 18.104 19.165 16.5386C20.2109 14.9732 20.7692 13.1327 20.7692 11.25C20.7663 8.72626 19.7624 6.30674 17.9778 4.52218C16.1933 2.73762 13.7737 1.73375 11.25 1.73077Z"
         fill="white"
@@ -116,7 +116,7 @@ export const Spinner: FC = () => (
 );
 
 export const CopyIcon: FC = () => (
-  <svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
     <g clipPath="url(#clip0_685_4038)">
       <path
         d="M16.0833 7.625H8.95833C8.08388 7.625 7.375 8.33388 7.375 9.20833V16.3333C7.375 17.2078 8.08388 17.9167 8.95833 17.9167H16.0833C16.9578 17.9167 17.6667 17.2078 17.6667 16.3333V9.20833C17.6667 8.33388 16.9578 7.625 16.0833 7.625Z"
@@ -135,14 +135,14 @@ export const CopyIcon: FC = () => (
     </g>
     <defs>
       <clipPath id="clip0_685_4038">
-        <rect fill="white" height="19" transform="translate(0.25 0.5)" width="19" />
+        <rect width="19" height="19" fill="white" transform="translate(0.25 0.5)" />
       </clipPath>
     </defs>
   </svg>
 );
 
 export const DownloadIcon: FC = () => (
-  <svg fill="none" height="24" viewBox="0 0 25 24" width="25" xmlns="http://www.w3.org/2000/svg">
+  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
     <path
       d="M12.05 15.7C12.15 15.8 12.25 15.9 12.35 15.9C12.45 16 12.65 16 12.75 16C12.85 16 13.05 16 13.15 15.9C13.25 15.8 13.35 15.8 13.45 15.7L17.45 11.7C17.85 11.3 17.85 10.7 17.45 10.3C17.05 9.9 16.45 9.9 16.05 10.3L13.75 12.6V5C13.75 4.4 13.35 4 12.75 4C12.15 4 11.75 4.4 11.75 5V12.6L9.45 10.3C9.05 9.9 8.45 9.9 8.05 10.3C7.65 10.7 7.65 11.3 8.05 11.7L12.05 15.7Z"
       fill="white"
