@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { siteConfig } from '@/config/site';
-import { ArrowDownIcon } from '../icons';
 import clsx from 'clsx';
+
+import { ArrowDownIcon } from '../icons';
+
+import { siteConfig } from '@/config/site';
 // import Button from "../button";
 
 const MobileMenu = ({
@@ -41,11 +43,11 @@ const MobileMenu = ({
               {item.children ? (
                 <div>
                   <button
-                    onClick={() => toggleSubmenu(item.name)}
                     className={clsx(
                       'flex w-full items-center justify-between transition-colors duration-200 hover:text-white',
                       isParentActive || isChildActive ? 'font-bold text-white' : 'text-white/70'
                     )}
+                    onClick={() => toggleSubmenu(item.name)}
                   >
                     <span className="flex items-center gap-1">
                       {item.name}
@@ -81,13 +83,13 @@ const MobileMenu = ({
                             }}
                           >
                             <Link
-                              href={child.href}
-                              target={child.target}
-                              onClick={() => setMobileMenuOpen(false)}
                               className={clsx(
                                 'block flex items-center gap-1 text-sm transition-colors duration-200 hover:text-white',
                                 isChildItemActive ? 'font-bold text-white' : 'text-white/70'
                               )}
+                              href={child.href}
+                              target={child.target}
+                              onClick={() => setMobileMenuOpen(false)}
                             >
                               <span>{child.name}</span>
                               {/* {child.target === '_blank' && <span className="ml-1">↗</span>} */}
@@ -100,13 +102,13 @@ const MobileMenu = ({
                 </div>
               ) : (
                 <Link
-                  href={item.href}
-                  target={item.target}
-                  onClick={() => setMobileMenuOpen(false)}
                   className={clsx(
                     'flex items-center gap-1 transition-colors duration-200 hover:text-white',
                     isParentActive ? 'font-bold text-white' : 'text-white/70'
                   )}
+                  href={item.href}
+                  target={item.target}
+                  onClick={() => setMobileMenuOpen(false)}
                 >
                   <span>{item.name}</span>
                   {/* {item.target === '_blank' && <span className="ml-1">↗</span>} */}

@@ -3,11 +3,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import Button from '../button';
-import MobileMenu from './mobile-menu';
 import clsx from 'clsx';
-import { siteConfig } from '@/config/site';
+
+import Button from '../button';
 import { ArrowDownIcon, CloseIcon, MenuIcon } from '../icons';
+
+import MobileMenu from './mobile-menu';
+
+import { siteConfig } from '@/config/site';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,22 +23,22 @@ const Navbar = () => {
           <div className="flex">
             <Link href="https://aintivirus.ai">
               <Image
-                src="/logo.png"
                 alt="logo"
-                layout="intrinsic"
-                width={189}
-                height={30}
                 className="h-[28px] w-[173px] xl:h-[30px] xl:w-[189px]"
+                height={30}
+                layout="intrinsic"
+                src="/logo.png"
+                width={189}
               />
             </Link>
           </div>
 
           <div className="ml-auto flex items-center xl:hidden">
             <button
-              onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
               className="text-xl text-primary focus:outline-none"
+              onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon width="21" height="18" />}
+              {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon height="18" width="21" />}
             </button>
           </div>
 

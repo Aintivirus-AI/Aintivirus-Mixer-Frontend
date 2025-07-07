@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { FC } from 'react';
 import { tv } from 'tailwind-variants';
+
 import { Spinner } from '../icons';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -32,7 +33,7 @@ const buttonStyles = tv({
     {
       variantColor: 'blue',
       variants: 'filled',
-      className: 'shadow-blue-grow bg-[linear-gradient(95deg,#024AEC_0.86%,#03BEFF_96.99%)]',
+      className: 'bg-[linear-gradient(95deg,#024AEC_0.86%,#03BEFF_96.99%)] shadow-blue-grow',
     },
   ],
   defaultVariants: {
