@@ -59,13 +59,7 @@ function Page() {
 
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            //   addToast({
-            //     title: 'Are you sure?',
-            //     description:
-            //       'Please confirm if you obviously backed-up your secret note. If you leave the page without saving note, you will lost your entire funds.',
-            //     color: 'danger',
-            //   });
-
+         
             e.preventDefault();
             e.returnValue = '';
         };
@@ -80,7 +74,7 @@ function Page() {
     useEffect(() => {
         const originalPush = router.push
         router.push = (url: string) => {
-            const confirmLeave = window.confirm("Please confirm if you obviously backed-up your secret note. If you leave the page without saving note, you will lost your entire funds.");
+            const confirmLeave = window.confirm("Please confirm you have saved your secret note. DO NOT refresh or leave the page without saving your secret note, or your funds will be lost!");
             if (confirmLeave) {
                 originalPush(url);
             }

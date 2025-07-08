@@ -373,7 +373,7 @@ export default function Page() {
                                 /> */}
               <CustomTextArea
                 label="Secret Note"
-                placeholder="Add a private note for this transaction"
+                placeholder="Paste the secret note"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
               />
