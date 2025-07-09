@@ -111,7 +111,7 @@ const Navbar = () => {
             target="_blank"
           >
             <Button className="hidden xl:flex" variantColor="blue">
-              Buy AIntivirus
+              Buy AINTI
             </Button>
           </Link>
         </div>

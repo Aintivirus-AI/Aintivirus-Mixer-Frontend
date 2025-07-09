@@ -51,7 +51,15 @@ export const siteConfig: SiteConfig = {
       href: 'https://tradein.aintivirus.ai',
       target: '_blank',
     },
-    { name: 'Blog', href: 'https://aintivirus.ai/explore', target: '_blank' },
+    {
+      name: "Media",
+      href: "https://aintivirus.ai/blog",
+      children: [
+        { name: "Blog", href: "https://aintivirus.ai/blog" },
+        { name: "Privacy", href: "https://aintivirus.ai/privacy" },
+        { name: "Podcast", href: "https://aintivirus.ai/podcast" },
+      ],
+    },
   ],
   navMenuItems: [
     {

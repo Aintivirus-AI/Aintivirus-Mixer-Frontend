@@ -121,7 +121,7 @@ const MobileMenu = ({
           href="https://raydium.io/swap/?inputMint=BAezfVmia8UYLt4rst6PCU4dvL2i2qHzqn4wGhytpNJW&outputMint=sol"
           target="_blank"
         >
-          <Button variantColor="blue">Buy AIntivirus</Button>
+          <Button variantColor="blue">Buy AINTI</Button>
         </Link> */}
       </ul>
     </div>
