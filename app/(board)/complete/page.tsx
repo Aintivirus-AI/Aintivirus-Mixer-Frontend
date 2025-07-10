@@ -116,7 +116,7 @@ function Page() {
                     <Button className="flex w-full" variantColor="blue" variants="outline" onClick={handleCopy}>
                         Copy Note <CopyIcon />
                     </Button>
-                    <Button className="flex w-full" variantColor="blue" onClick={handleDownload}>
+                    <Button className="hidden sm:flex w-full" variantColor="blue" onClick={handleDownload}>
                         Download <DownloadIcon />
                     </Button>
                 </div>
