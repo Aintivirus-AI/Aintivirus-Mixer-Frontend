@@ -194,7 +194,7 @@ export default function Page() {
   };
 
   const handleConfirmWithdraw = async () => {
-    if (ENV.PROJECT_DISABLE) return;
+    // if (ENV.PROJECT_DISABLE) return;
     if (!isConnected) {
       addToast({
         title: 'Connect Wallet',
