@@ -28,11 +28,6 @@ const currencies = [
     { key: 'ainti', label: 'AINTI' },
 ];
 
-const versions = [
-    { key: 'v1', label: 'V1' },
-    { key: 'v2', label: 'V2' },
-];
-
 const amountsSol = [
     { key: '0.5', label: '0.5' },
     { key: '1', label: '1' },
@@ -57,7 +52,7 @@ export default function Page() {
     const [cautionModalOpen, setCautionModalOpen] = useState(false);
     const [selected, setSelected] = React.useState('deposit');
 
-    const [selectedVersion, setSelectedVersion] = useState('v1')
+    
     const [selectedCurrency, setSelectedCurrency] = useState('sol');
     const [amount, setAmount] = useState(selectedCurrency === 'sol' ? amountsSol[0].key : amountsToken[0].key);
 
@@ -377,18 +372,6 @@ export default function Page() {
                                     type="file"
                                     onChange={handleReadNoteFile}
                                 /> */}
-                            <CustomSelect
-                                className="w-full"
-                                label="Mixer Version"
-                                placeholder="Select a mixer version"
-                                selectedKeys={[selectedVersion]}
-                            >
-                                {versions.map((version) => (
-                                    <SelectItem key={version.key} onPress={() => setSelectedVersion(version.key)}>
-                                        {version.label}
-                                    </SelectItem>
-                                ))}
-                            </CustomSelect>
                             <CustomTextArea
                                 label="Secret Note"
                                 placeholder="Paste the secret note"
