@@ -8,8 +8,10 @@ import { getFormattedDatetime } from '@/util';
 import CustomTextArea from '@/components/custom-textarea';
 import Button from '@/components/button';
 import { CopyIcon, DownloadIcon } from '@/components/icons';
+import { noteSuffix, notePreffix } from '@/config/data';
 
 function Page() {
+
     const router = useRouter()
     const searchParams = useSearchParams();
     const note = searchParams.get('note') || '';
@@ -20,7 +22,7 @@ function Page() {
 
     const handleCopy = async () => {
         try {
-            await navigator.clipboard.writeText(note);
+            await navigator.clipboard.writeText(notePreffix + note + noteSuffix);
             addToast({
                 title: 'Saved on clipboard',
                 description: 'Note copied to clipboard. Paste and save it in your safe space.',
@@ -44,7 +46,7 @@ function Page() {
             return;
         }
 
-        const blob = new Blob([note], { type: 'text/plain' });
+        const blob = new Blob([notePreffix + note + noteSuffix], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
@@ -97,7 +99,7 @@ function Page() {
                         className="w-full font-mono tracking-widest"
                         maxRows={10}
                         minRows={10}
-                        value={showNote ? note : '*'.repeat(note.length)}
+                        value={showNote ? notePreffix + note + noteSuffix : '*'.repeat(note.length)}
                     />
                     {hovering && (
                         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

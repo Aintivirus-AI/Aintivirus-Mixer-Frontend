@@ -25,6 +25,8 @@ import CustomSelect from '@/components/custom-select';
 import Button from '@/components/button';
 import CustomInput from '@/components/custom-input';
 import CustomTextArea from '@/components/custom-textarea';
+import { validateEthereumWalletAddress } from '@/util';
+import { notePreffix, noteSuffix } from '@/config/data';
 
 const currencies = [
     { key: 'eth', label: 'ETH' },
@@ -205,6 +207,16 @@ export default function Page() {
             return;
         }
 
+        if (!validateEthereumWalletAddress(recipientAddress)) {
+            addToast({
+                title: "Invalid recipient",
+                description: "Please input valid Ethereum wallet address as recipient",
+                color: "warning"
+            })
+
+            return
+        }
+
         if (!note) {
             addToast({
                 title: 'Oops!',
@@ -227,8 +239,9 @@ export default function Page() {
 
         try {
             setLoading(true);
-
-            const res = await MixAction.withdrawETH(note, recipientAddress);
+            
+            const noteBody = note.replaceAll(notePreffix, '').replaceAll(noteSuffix, '')
+            const res = await MixAction.withdrawETH(noteBody, recipientAddress);
 
             if (!res.success) {
                 addToast({

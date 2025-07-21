@@ -28,7 +28,8 @@ import CustomSelect from '@/components/custom-select';
 import Button from '@/components/button';
 import CustomTextArea from '@/components/custom-textarea';
 import CustomInput from '@/components/custom-input';
-
+import { validateSolanaWalletAddress } from '@/util';
+import { notePreffix, noteSuffix } from '@/config/data';
 const currencies = [
     { key: 'eth', label: 'ETH' },
     { key: 'ainti', label: 'AINTI' },
@@ -208,6 +209,16 @@ export default function Page() {
             return;
         }
 
+        if (!validateSolanaWalletAddress(recipientAddress)) {
+            addToast({
+                title: "Invalid recipient",
+                description: "Please input valid Solana wallet address as recipient",
+                color: "warning"
+            })
+
+            return
+        }
+
         if (!note) {
             addToast({
                 title: 'Oops!',
@@ -230,7 +241,8 @@ export default function Page() {
 
         try {
             setLoading(true);
-            const res = await MixAction.withdrawSOL(note, recipientAddress);
+            const noteBody = note.replaceAll(notePreffix, '').replaceAll(noteSuffix, '')
+            const res = await MixAction.withdrawSOL(noteBody, recipientAddress);
 
             if (!res.success) {
                 addToast({
@@ -343,6 +355,18 @@ export default function Page() {
                                     type="file"
                                     onChange={handleReadNoteFile}
                                 /> */}
+                            {/* <CustomSelect
+                                className="w-full"
+                                label="Mixer Version"
+                                placeholder="Select a mixer version"
+                                selectedKeys={[selectedVersion]}
+                            >
+                                {versions.map((version) => (
+                                    <SelectItem key={version.key} onPress={() => setSelectedVersion(version.key)}>
+                                        {version.label}
+                                    </SelectItem>
+                                ))}
+                            </CustomSelect> */}
                             <CustomTextArea
                                 height={200}
                                 label="Secret Note"
